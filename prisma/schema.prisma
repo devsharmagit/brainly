@@ -18,4 +18,23 @@ model User {
     email    String  @unique
     name     String?
     image    String?
+    saves    Saves[]
+}
+
+model Saves {
+    id       Int     @id @default(autoincrement())
+    category CATEGORY
+    content  String?
+    link     String?
+    userId   Int
+    user     User  @relation(fields: [userId], references: [id])
+    pinned   Boolean @default(true)
+    createdAt DateTime @default(now())
+}
+
+enum CATEGORY{
+  LINK
+  YTLINK
+  TWTLINK
+  NOTE
 }
