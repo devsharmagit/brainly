@@ -18,10 +18,10 @@ model User {
     email    String  @unique
     name     String?
     image    String?
-    saves    Saves[]
+    memories    Memory[]
 }
 
-model Saves {
+model Memory {
     id       Int     @id @default(autoincrement())
     category CATEGORY
     content  String?
@@ -32,7 +32,7 @@ model Saves {
     createdAt DateTime @default(now())
 }
 
-enum CATEGORY{
+enum CATEGORY {
   LINK
   YTLINK
   TWTLINK
