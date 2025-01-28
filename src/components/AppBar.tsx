@@ -1,9 +1,18 @@
-import { signIn, signOut } from "next-auth/react"
-import { Button } from "@/components/ui/button"
+import { signIn, signOut, useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 
 export const Appbar = () => {
-  return <div>
-  <Button onClick={() => signIn()}>Signin</Button>
-  <Button variant="outline" onClick={() => signOut()}>Sign out</Button>
-</div>
-}
+  const session = useSession();
+
+  return (
+    <div>
+      {session.data?.user?.name ? (
+        <Button variant="outline" onClick={() => signOut()}>
+          Sign out
+        </Button>
+      ) : (
+        <Button onClick={() => signIn()}>Signin</Button>
+      )}
+    </div>
+  );
+};
