@@ -1,13 +1,21 @@
-'use client';
-import React from 'react';
-import { SessionProvider } from 'next-auth/react';
-import { Appbar } from '@/components/AppBar';
+"use client";
+import React from "react";
+import { SessionProvider } from "next-auth/react";
+import { Appbar } from "@/components/AppBar";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
     <SessionProvider>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem
+        disableTransitionOnChange
+      >
         <Appbar />
-      {children}
+        {children}
+      </ThemeProvider>
     </SessionProvider>
   );
 };
