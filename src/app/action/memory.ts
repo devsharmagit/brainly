@@ -3,6 +3,7 @@
 import { AppError, authAsyncCatcher } from "@/lib/asyncCatcher";
 import { prisma } from "@/lib/prisma";
 import { CATEGORY, Memory } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 
 interface createMemoryInterface {
@@ -35,6 +36,7 @@ export const createMemory = authAsyncCatcher<createMemoryInterface, Memory>(
         userId: session.user.id,
       },
     });
+    revalidatePath('/dashboard')
       return {
         success: true,
         data: memory,
@@ -48,6 +50,7 @@ export const createMemory = authAsyncCatcher<createMemoryInterface, Memory>(
         userId: session.user.id,
       },
     });
+    revalidatePath('/dashboard')
       return {
         success: true,
         data: memory,
@@ -96,7 +99,7 @@ export const updateMemory = authAsyncCatcher<updateMemoryInterface, Memory>(
         content: content
       }
     })
-
+    revalidatePath('/dashboard')
     return {
       success : true,
       message : "Successfully Updated the Memory!",
@@ -127,6 +130,7 @@ export const deleteMemory = authAsyncCatcher<{id:number}, null>(
         userId: session.user.id,
     }
     })
+    revalidatePath('/dashboard')
 
     return {
       data: null,

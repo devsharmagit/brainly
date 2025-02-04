@@ -3,35 +3,40 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { BookmarkPlus, Link2, Notebook, StickyNote } from "lucide-react";
+import { BookmarkPlus, Link2, Notebook } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LinkForm from "./LinkForm";
 import NoteForm from "./NoteForm";
+import { useState } from "react";
 
 export function AddMemoryDialog() {
+
+  const [open, setOpen] = useState<boolean>(false)
+
+  const handleDialogClose = ()=>{
+    setOpen(false)
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={"default"} className="flex items-center font-medium">
           <BookmarkPlus className="!h-5 !w-5" />
-          Add a Memory
+         Add a memory
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add a Memory</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-2xl">Add a Memory</DialogTitle>
+          <DialogDescription className="text-sm !mt-0">
             Add a memory to not forget about it.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="grid mt-2">
           <Tabs defaultValue="account" className=" bg-transparent">
             <TabsList className="gap-1">
               <TabsTrigger value="link" >
@@ -52,10 +57,10 @@ export function AddMemoryDialog() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="link">
-              <LinkForm />
+              <LinkForm handleDialogClose={handleDialogClose} />
             </TabsContent>
             <TabsContent value="note">
-              <NoteForm />
+              <NoteForm  handleDialogClose={handleDialogClose} />
             </TabsContent>
           </Tabs>
         </div>
