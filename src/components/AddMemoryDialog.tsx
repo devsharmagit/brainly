@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookmarkPlus, Link2, StickyNote } from "lucide-react";
+import { BookmarkPlus, Link2, Notebook, StickyNote } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import LinkForm from "./LinkForm";
+import NoteForm from "./NoteForm";
 
 export function AddMemoryDialog() {
   return (
@@ -30,32 +32,34 @@ export function AddMemoryDialog() {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <Tabs defaultValue="account" className="w-[400px]">
-            <TabsList className="py-2">
-              <TabsTrigger value="account">
-                <div className=" py-2 flex gap-2 items-center">
-                  <Link2 />
-                  Account
+          <Tabs defaultValue="account" className=" bg-transparent">
+            <TabsList className="gap-1">
+              <TabsTrigger value="link" >
+                <div className=" flex gap-1 items-center">
+                  <Link2 className="text-green-500 w-5 h-5"  />
+                  <p className="text-base ">
+                  Link
+                  </p>
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="password">
-                <div className=" py-2 flex gap-2 items-center">
-                  <StickyNote />
-                  Password
+              <TabsTrigger value="note" >
+                <div className="  flex gap-1 items-center">
+                  <Notebook className="text-blue-500 w-5 h-5" />
+                  <p className="text-base ">
+                  Note
+                  </p>
                 </div>
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="account">
-              Make changes to your account here.
+            <TabsContent value="link">
+              <LinkForm />
             </TabsContent>
-            <TabsContent value="password">
-              Change your password here.
+            <TabsContent value="note">
+              <NoteForm />
             </TabsContent>
           </Tabs>
         </div>
-        <DialogFooter>
-          <Button type="submit">Save</Button>
-        </DialogFooter>
+       
       </DialogContent>
     </Dialog>
   );
