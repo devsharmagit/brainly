@@ -14,22 +14,24 @@ datasource db {
 }
 
 model User {
-    id       Int     @id @default(autoincrement())
-    email    String  @unique
-    name     String?
-    image    String?
-    memories    Memory[]
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  name     String?
+  image    String?
+  memories Memory[]
 }
 
 model Memory {
-    id       Int     @id @default(autoincrement())
-    category CATEGORY
-    content  String?
-    link     String?
-    userId   Int
-    user     User  @relation(fields: [userId], references: [id])
-    pinned   Boolean @default(true)
-    createdAt DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  category    CATEGORY
+  content     String?
+  link        String?
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  title       String?
+  description String?
+  imageUrl    String?
 }
 
 enum CATEGORY {

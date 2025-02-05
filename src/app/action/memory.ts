@@ -2,84 +2,113 @@
 
 import { AppError, authAsyncCatcher } from "@/lib/asyncCatcher";
 import { prisma } from "@/lib/prisma";
-import { CATEGORY, Memory } from "@prisma/client";
+import { Memory } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-
+import { getYoutubeDetails, giveLinkDetails } from "@/lib/scrape";
+import { checkLinkType, giveTweetInfo } from "@/lib/utils";
 
 interface createMemoryInterface {
   link?: string;
-  content?: string;
-  category: CATEGORY;
 }
 interface updateMemoryInterface {
-  id: number,
-  content?: string,
-  link?: string
+  id: number;
+  content?: string;
+  link?: string;
 }
 
-export const createMemory = authAsyncCatcher<createMemoryInterface, Memory>(
-  async({category, link, content, session})=>{
-  
-  if (
-    category === "LINK" ||
-    category === "TWTLINK" ||
-    category === "YTLINK"
-  ) {
-    
+export const createMemoryNote = () => {};
+
+export const createMemoryLink = authAsyncCatcher<createMemoryInterface, Memory>(
+  async ({ link, session }) => {
+    // TODO
+    // parsing with zod
     if (!link) {
-      throw new AppError("Invalid Inputs !")
+      throw new AppError("Invalid Inputs !");
     }
-    const memory = await prisma.memory.create({
-      data: {
-        link: link,
-        category: category,
-        userId: session.user.id,
-      },
-    });
-    revalidatePath('/dashboard')
-      return {
-        success: true,
-        data: memory,
-        message: "Memory created suucessfully !",
-      };
-  } else if (category === "NOTE") {
-    const memory = await prisma.memory.create({
-      data: {
-        content,
-        category: category,
-        userId: session.user.id,
-      },
-    });
-    revalidatePath('/dashboard')
-      return {
-        success: true,
-        data: memory,
-        message: "Memory created suucessfully !",
-      };
+
+    const category = checkLinkType(link);
+    let memory;
+
+    if (checkLinkType(link) === "YTLINK") {
+      const scrapeDetails = await getYoutubeDetails(link);
+      const content = `category :- youtube link \n keywords :- ${
+        scrapeDetails.keywords || "NA"
+      } \n link :- ${link || "NA"} \n title :- ${scrapeDetails.title} `;
+      memory = await prisma.memory.create({
+        data: {
+          link: link,
+          category: category,
+          userId: session.user.id,
+          title: scrapeDetails.title,
+          imageUrl: scrapeDetails.image,
+          content,
+        },
+      });
+    }
+    if (checkLinkType(link) === "LINK") {
+      const scrapeDetails = await giveLinkDetails(link);
+      const content = `category :- link \n keywords :- ${
+        scrapeDetails.keywords || "NA"
+      } \n link :- ${link || "NA"} \n content :- ${
+        scrapeDetails.content || "NA"
+      }`;
+      memory = await prisma.memory.create({
+        data: {
+          link: link,
+          category: category,
+          userId: session.user.id,
+          title: scrapeDetails.title,
+          description: scrapeDetails.description,
+          imageUrl: scrapeDetails.image,
+          content,
+        },
+      });
+    }
+    if (checkLinkType(link) === "TWTLINK") {
+      const tweetDetails = await giveTweetInfo(link);
+      const content = `category :- tweeter link \n  link :- ${
+        link || "NA"
+      } \n content :- ${tweetDetails.description || "NA"} \n creater :- ${
+        tweetDetails.creatorName || "NA"
+      }`;
+
+      memory = await prisma.memory.create({
+        data: {
+          link,
+          content,
+          category,
+          userId: session.user.id,
+          description: tweetDetails.description,
+        },
+      });
+    }
+
+    if (!memory) throw new AppError("Something went wrong creating memory !");
+    revalidatePath("/dashboard");
+    return {
+      success: true,
+      data: memory,
+      message: "Memory created suucessfully !",
+    };
   }
-  throw new AppError("Invalid category");
-});
-
-
+);
 
 export const getAllMemories = authAsyncCatcher<void, Memory[]>(
-  async({session})=>{
-
+  async ({ session }) => {
     const allMemories = await prisma.memory.findMany({
-      where: {userId: session.user.id}
-    })
+      where: { userId: session.user.id },
+    });
 
     return {
       success: true,
       data: allMemories,
-      message: "All Memory fetched Successfully!"
-    }
-  })
-
+      message: "All Memory fetched Successfully!",
+    };
+  }
+);
 
 export const updateMemory = authAsyncCatcher<updateMemoryInterface, Memory>(
-  async ({id, content, link, session})=>{
-    
+  async ({ id, content, link, session }) => {
     const isUserMemory = await prisma.memory.findFirst({
       where: {
         id: id,
@@ -88,32 +117,29 @@ export const updateMemory = authAsyncCatcher<updateMemoryInterface, Memory>(
     });
 
     if (!isUserMemory) {
-      throw new AppError("You dont have permissions to perform the operation.")
+      throw new AppError("You dont have permissions to perform the operation.");
     }
     const newMemory = await prisma.memory.update({
-      where:{
+      where: {
         id: id,
         userId: session.user.id,
-      }, data: {
+      },
+      data: {
         link: link,
-        content: content
-      }
-    })
-    revalidatePath('/dashboard')
+        content: content,
+      },
+    });
+    revalidatePath("/dashboard");
     return {
-      success : true,
-      message : "Successfully Updated the Memory!",
-      data: newMemory
-    }
-
-
+      success: true,
+      message: "Successfully Updated the Memory!",
+      data: newMemory,
+    };
   }
-)
+);
 
-
-export const deleteMemory = authAsyncCatcher<{id:number}, null>(
-  async({id, session})=>{
-    
+export const deleteMemory = authAsyncCatcher<{ id: number }, null>(
+  async ({ id, session }) => {
     const isUserMemory = await prisma.memory.findFirst({
       where: {
         id: id,
@@ -122,22 +148,20 @@ export const deleteMemory = authAsyncCatcher<{id:number}, null>(
     });
 
     if (!isUserMemory) {
-      throw new AppError("You dont have permissions to perform the operation.")
+      throw new AppError("You dont have permissions to perform the operation.");
     }
     await prisma.memory.delete({
-    where:{
-      id: id,
+      where: {
+        id: id,
         userId: session.user.id,
-    }
-    })
-    revalidatePath('/dashboard')
+      },
+    });
+    revalidatePath("/dashboard");
 
     return {
       data: null,
       success: true,
-      message: "Successfully Deleted the Memory!"
-    }
-
+      message: "Successfully Deleted the Memory!",
+    };
   }
-)
-
+);
