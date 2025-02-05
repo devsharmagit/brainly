@@ -1,15 +1,13 @@
-import OpenAI from "openai";
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+import { GoogleGenerativeAI } from "@google/generative-ai";
+const genAI = new GoogleGenerativeAI("AIzaSyC0pPVg8sQyNw_PYNQjswnUEaYvnDzoEKY");
+const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
 
 export const generateEmbeddings = async (input: string) => {
   try {
-    const embedding = await openai.embeddings.create({
-      model: "text-embedding-3-small",
-      input,
-      encoding_format: "float",
-    });
+    if (!input) return;
+    const result = await model.embedContent(input);
 
-    return embedding;
+    return result.embedding.values;
   } catch (error) {
     console.log(error);
   }

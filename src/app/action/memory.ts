@@ -6,6 +6,8 @@ import { Memory } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { getYoutubeDetails, giveLinkDetails, giveTweetInfo } from "@/lib/scrape";
 import { checkLinkType } from "@/lib/utils";
+import { generateEmbeddings } from "@/lib/embeddings";
+import { addVectorData } from "@/lib/pinecone";
 
 interface CreateMemoryLinkInterface {
   link: string;
@@ -27,6 +29,10 @@ export const createMemoryNote = authAsyncCatcher<CreateMemoryNoteInterface, Memo
         description: content
       }
     })
+    const vectorEmbedding = await generateEmbeddings(memory.content)
+    if(!vectorEmbedding) throw new AppError("Something went wrong creating vector embeddings")
+     await addVectorData({id: memory.id, vector_embeddings: vectorEmbedding, metaData: {content: memory.content, userId: memory.userId, memoryId: memory.id}})
+    
     revalidatePath("/dashboard");
     return {
       success: true,
@@ -104,6 +110,12 @@ export const createMemoryLink = authAsyncCatcher<CreateMemoryLinkInterface, Memo
     }
 
     if (!memory) throw new AppError("Something went wrong creating memory !");
+    
+    const vectorEmbedding = await generateEmbeddings(memory.content)
+    if(!vectorEmbedding) throw new AppError("Something went wrong creating vector embeddings")
+     await addVectorData({id: memory.id, vector_embeddings: vectorEmbedding, metaData: {content: memory.content, userId: memory.userId, memoryId: memory.id}})
+    
+    
     revalidatePath("/dashboard");
     return {
       success: true,

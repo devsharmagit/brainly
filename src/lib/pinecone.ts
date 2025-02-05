@@ -1,36 +1,35 @@
 import { Pinecone } from "@pinecone-database/pinecone";
-import { generateEmbeddings } from "./embeddings";
 
 const pc = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY!,
 });
 
-export const index = pc.index("brainly-test");
+export const index = pc.index("gemini-test");
 
 interface AddVectorDataProps {
   id: number;
-  vectorString: string;
+  vector_embeddings: number[];
   // TODO change any to required Type
-  metaData: any;
+  metaData: {
+    content: string;
+    userId: number;
+    memoryId: number;
+  };
 }
 
 export const addVectorData = async ({
   id,
-  vectorString,
+  vector_embeddings,
   metaData,
 }: AddVectorDataProps) => {
   try {
-    const embedding = await generateEmbeddings(vectorString);
-
-    if (embedding) {
-      const vector = embedding.data[0].embedding;
-
-      await index.upsert([
-        { id: String(id), values: vector, metadata: { ...metaData } },
-      ]);
-    }
+    await index.upsert([
+      { id: String(id), values: vector_embeddings, metadata: { ...metaData } },
+    ]);
+    return true
   } catch (error) {
     console.log(error);
+    return false
   }
 };
 
