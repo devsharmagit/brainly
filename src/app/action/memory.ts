@@ -4,19 +4,14 @@ import { AppError, authAsyncCatcher } from "@/lib/asyncCatcher";
 import { prisma } from "@/lib/prisma";
 import { Memory } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { getYoutubeDetails, giveLinkDetails } from "@/lib/scrape";
-import { checkLinkType, giveTweetInfo } from "@/lib/utils";
+import { getYoutubeDetails, giveLinkDetails, giveTweetInfo } from "@/lib/scrape";
+import { checkLinkType } from "@/lib/utils";
 
 interface createMemoryInterface {
   link?: string;
 }
-interface updateMemoryInterface {
-  id: number;
-  content?: string;
-  link?: string;
-}
 
-export const createMemoryNote = () => {};
+export const createMemoryNote = async () => {};
 
 export const createMemoryLink = authAsyncCatcher<createMemoryInterface, Memory>(
   async ({ link, session }) => {
@@ -107,36 +102,6 @@ export const getAllMemories = authAsyncCatcher<void, Memory[]>(
   }
 );
 
-export const updateMemory = authAsyncCatcher<updateMemoryInterface, Memory>(
-  async ({ id, content, link, session }) => {
-    const isUserMemory = await prisma.memory.findFirst({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
-    });
-
-    if (!isUserMemory) {
-      throw new AppError("You dont have permissions to perform the operation.");
-    }
-    const newMemory = await prisma.memory.update({
-      where: {
-        id: id,
-        userId: session.user.id,
-      },
-      data: {
-        link: link,
-        content: content,
-      },
-    });
-    revalidatePath("/dashboard");
-    return {
-      success: true,
-      message: "Successfully Updated the Memory!",
-      data: newMemory,
-    };
-  }
-);
 
 export const deleteMemory = authAsyncCatcher<{ id: number }, null>(
   async ({ id, session }) => {

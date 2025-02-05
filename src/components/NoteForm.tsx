@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea"
-import { createMemory } from "@/app/action/memory";
 import { useToast } from "@/hooks/use-toast";
 
 const NoteForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
@@ -32,18 +31,18 @@ const NoteForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
   }
 
   const onSubmit = async ({ content }: NoteSchemaType) => {
-    if (!content) return;
-    const result = await createMemory({ content, category: "NOTE" });
-    if(result.success){
-      toast({description: result.message, variant: "success"})
-      handleFormClose()
-      return
-    }
-    if(!result.success){
-      toast({description: result.message, variant: "destructive"})
-      handleFormClose()
-      return
-    }
+    // if (!content) return;
+    // const result = await createMemory({ content, category: "NOTE" });
+    // if(result.success){
+    //   toast({description: result.message, variant: "success"})
+    //   handleFormClose()
+    //   return
+    // }
+    // if(!result.success){
+    //   toast({description: result.message, variant: "destructive"})
+    //   handleFormClose()
+    //   return
+    // }
   };
 
   return (

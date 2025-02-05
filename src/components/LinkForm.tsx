@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createMemory } from "@/app/action/memory";
+import { createMemoryLink } from "@/app/action/memory";
 import { useToast } from "@/hooks/use-toast";
 
 const LinkForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
@@ -33,7 +33,7 @@ const LinkForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
 
   const onSubmit = async ({ link }: LinkSchemaType) => {
     if (!link) return;
-    const result = await createMemory({ link, category: "LINK" });
+    const result = await createMemoryLink({ link });
     if(result.success){
       toast({description: result.message, variant: "success"})
       handleFormClose()
