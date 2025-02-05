@@ -7,13 +7,38 @@ import { revalidatePath } from "next/cache";
 import { getYoutubeDetails, giveLinkDetails, giveTweetInfo } from "@/lib/scrape";
 import { checkLinkType } from "@/lib/utils";
 
-interface createMemoryInterface {
-  link?: string;
+interface CreateMemoryLinkInterface {
+  link: string;
 }
 
-export const createMemoryNote = async () => {};
+interface CreateMemoryNoteInterface {
+  content : string
+}
 
-export const createMemoryLink = authAsyncCatcher<createMemoryInterface, Memory>(
+export const createMemoryNote = authAsyncCatcher<CreateMemoryNoteInterface, Memory>(
+  async ({content, session})=>{
+    // TODO
+    // parse content with zod
+    const memory = await prisma.memory.create({
+      data:{
+        category: "NOTE",
+        content: `category :- Note \n conten :- ${content}`,
+        userId: session.user.id,
+        description: content
+      }
+    })
+    revalidatePath("/dashboard");
+    return {
+      success: true,
+      data: memory,
+      message: "Successfully create memory"
+    }
+
+
+  }
+)
+
+export const createMemoryLink = authAsyncCatcher<CreateMemoryLinkInterface, Memory>(
   async ({ link, session }) => {
     // TODO
     // parsing with zod

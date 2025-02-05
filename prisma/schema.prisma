@@ -24,7 +24,7 @@ model User {
 model Memory {
   id          Int      @id @default(autoincrement())
   category    CATEGORY
-  content     String?
+  content     String
   link        String?
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
