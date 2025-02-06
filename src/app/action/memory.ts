@@ -6,8 +6,8 @@ import { Memory } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { getYoutubeDetails, giveLinkDetails, giveTweetInfo } from "@/lib/scrape";
 import { checkLinkType } from "@/lib/utils";
-import { generateEmbeddings } from "@/lib/embeddings";
-import { addVectorData } from "@/lib/pinecone";
+import { genAI, generateEmbeddings } from "@/lib/embeddings";
+import { addVectorData, queryVectorDB } from "@/lib/pinecone";
 
 interface CreateMemoryLinkInterface {
   link: string;
@@ -16,6 +16,44 @@ interface CreateMemoryLinkInterface {
 interface CreateMemoryNoteInterface {
   content : string
 }
+
+interface GetAIChatInterface {
+  prompt: string
+}
+
+export const getAIChat = authAsyncCatcher<GetAIChatInterface, string>(
+  async ({prompt, session})=>{
+
+    // convert to embeddings
+    const embedding = await generateEmbeddings(prompt)
+
+    if(!embedding) throw new AppError("Something went wront generating embeddings")
+
+    // query using embedding
+const result = await queryVectorDB(session.user.id, embedding)
+
+const context = result?.matches.map(({metadata})=>{
+  if(!metadata) return ""
+  return metadata.content
+}).join(" \n ")
+
+
+    // send relavant to gemini
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const response = await model.generateContent({
+      contents: [{ parts: [{ text: `Context:\n${context}\n\nQuestion: ${prompt}` }], role: "user" }],
+    });
+
+if(!response.response.candidates) throw new AppError("REsponse candidate was not defined")
+
+    return {
+      success: true,
+      data: response.response.text(),
+      message: "Successfully fetched the result",
+    }
+  }
+)
 
 export const createMemoryNote = authAsyncCatcher<CreateMemoryNoteInterface, Memory>(
   async ({content, session})=>{

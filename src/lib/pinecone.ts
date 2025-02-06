@@ -40,3 +40,19 @@ export const deleteVectorData = async (id: string) => {
     console.log(error);
   }
 };
+
+export const queryVectorDB = async (userId : number, embedding: number[])=>{
+try {
+  const result = await index.query({
+    vector: embedding,
+    topK: 5,
+    filter: {
+      userId
+    },
+    includeMetadata: true
+  })
+  return result
+} catch (error) {
+  console.log(error)
+}
+}
