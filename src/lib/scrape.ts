@@ -1,11 +1,6 @@
 "use server";
 import * as cheerio from "cheerio";
 import axios from "axios";
-// import puppeteer from "puppeteer-extra";
-// import StealthPlugin  from "puppeteer-extra-plugin-stealth";
-// puppeteer.use(StealthPlugin())
-
-import puppeteer from "puppeteer";
 import { CATEGORY } from "@prisma/client";
 
 export const giveLinkDetails = async (link: string) => {
@@ -64,36 +59,31 @@ export const getYoutubeDetails = async (link: string) => {
   };
 };
 
-export const giveTweetInfo = async (link: string) => {
-  const browser = await puppeteer.launch({
-    headless: true, // Faster headless mode
-    args: ["--no-sandbox", "--disable-setuid-sandbox"], // Speeds up execution
-  });
-
-  const page = await browser.newPage();
-
-  await page.setRequestInterception(true);
-  page.on("request", (req) => {
-    if (["image", "stylesheet", "font"].includes(req.resourceType())) {
-      req.abort();
-    } else {
-      req.continue();
+function extractTwitterId(url : string) {
+    
+    const regex = /\/status\/(\d+)/;
+    const match = url.match(regex);
+  
+    if (match && match[1]) {
+      return match[1];
     }
-  });
+  
+    return null;
+  }
+  
 
-  await page.goto(link, { waitUntil: "domcontentloaded" });
-
-  await page.waitForSelector('div[data-testid="tweetText"]', { visible: true });
-  await page.waitForSelector('div[data-testid="User-Name"]', { visible: true });
-  const tweet = await page
-    .$eval('div[data-testid="tweetText"]', (el) => el.innerText)
-    .catch(() => "N/A");
-  const username = await page
-    .$eval('div[data-testid="User-Name"]', (el) => el.innerText)
-    .catch(() => "N/A");
-
-  await browser.close();
-  return { description: tweet, creatorName: username };
+export const giveTweetInfo = async (link: string) => {
+// TODO
+    // Twitter link check ZOD
+  const tweetId = extractTwitterId(link)
+    const response = await axios.get('https://twitter-api45.p.rapidapi.com/tweet.php', {
+        params: { id: tweetId },
+        headers: {
+          'x-rapidapi-key': process.env.RAPID_API_KEY,
+          'x-rapidapi-host': 'twitter-api45.p.rapidapi.com'
+        }
+      });    
+  return { description: response.data.text, creatorName: response.data.name };
 };
 
 interface ContentMakerProps {
