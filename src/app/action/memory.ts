@@ -4,7 +4,7 @@ import { AppError, authAsyncCatcher } from "@/lib/asyncCatcher";
 import { prisma } from "@/lib/prisma";
 import { Memory } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { getYoutubeDetails, giveLinkDetails, giveTweetInfo } from "@/lib/scrape";
+import { contentMaker, getYoutubeDetails, giveLinkDetails, giveTweetInfo } from "@/lib/scrape";
 import { checkLinkType } from "@/lib/utils";
 import { genAI, generateEmbeddings } from "@/lib/embeddings";
 import { addVectorData, queryVectorDB } from "@/lib/pinecone";
@@ -62,7 +62,7 @@ export const createMemoryNote = authAsyncCatcher<CreateMemoryNoteInterface, Memo
     const memory = await prisma.memory.create({
       data:{
         category: "NOTE",
-        content: `category :- Note \n conten :- ${content}`,
+        content: contentMaker({category: "NOTE", details: content}),
         userId: session.user.id,
         description: content
       }
@@ -95,9 +95,7 @@ export const createMemoryLink = authAsyncCatcher<CreateMemoryLinkInterface, Memo
 
     if (checkLinkType(link) === "YTLINK") {
       const scrapeDetails = await getYoutubeDetails(link);
-      const content = `category :- youtube link \n keywords :- ${
-        scrapeDetails.keywords || "NA"
-      } \n link :- ${link || "NA"} \n title :- ${scrapeDetails.title} `;
+      const content = contentMaker({category: "YTLINK", link, details: scrapeDetails.details, title: scrapeDetails.title, description: scrapeDetails.description, keywords: scrapeDetails.keywords})
       memory = await prisma.memory.create({
         data: {
           link: link,
@@ -110,32 +108,23 @@ export const createMemoryLink = authAsyncCatcher<CreateMemoryLinkInterface, Memo
       });
     }
     if (checkLinkType(link) === "LINK") {
-      const scrapeDetails = await giveLinkDetails(link);
-      const content = `category :- link \n keywords :- ${
-        scrapeDetails.keywords || "NA"
-      } \n link :- ${link || "NA"} \n content :- ${
-        scrapeDetails.content || "NA"
-      }`;
+      const {title, description,image, content : details, keywords} = await giveLinkDetails(link);
+      const content = contentMaker({category: "LINK",link, title, description, details, keywords})
       memory = await prisma.memory.create({
         data: {
           link: link,
           category: category,
           userId: session.user.id,
-          title: scrapeDetails.title,
-          description: scrapeDetails.description,
-          imageUrl: scrapeDetails.image,
+          title: title,
+          description: description,
+          imageUrl: image,
           content,
         },
       });
     }
     if (checkLinkType(link) === "TWTLINK") {
       const tweetDetails = await giveTweetInfo(link);
-      const content = `category :- tweeter link \n  link :- ${
-        link || "NA"
-      } \n content :- ${tweetDetails.description || "NA"} \n creater :- ${
-        tweetDetails.creatorName || "NA"
-      }`;
-
+      const content = contentMaker({category: "TWTLINK", details: tweetDetails.description, createrName: tweetDetails.creatorName })
       memory = await prisma.memory.create({
         data: {
           link,
