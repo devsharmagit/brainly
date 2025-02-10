@@ -4,10 +4,11 @@ import { AppError, authAsyncCatcher } from "@/lib/asyncCatcher";
 import { prisma } from "@/lib/prisma";
 import { Memory } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { contentMaker, getYoutubeDetails, giveLinkDetails, giveTweetInfo } from "@/lib/scrape";
-import { checkLinkType } from "@/lib/utils";
+import {  getYoutubeDetails, giveLinkDetails, giveTweetInfo } from "@/lib/scrape";
+import { checkLinkType, contentMaker } from "@/lib/utils";
 import { genAI, generateEmbeddings } from "@/lib/embeddings";
 import { addVectorData, queryVectorDB } from "@/lib/pinecone";
+
 
 interface CreateMemoryLinkInterface {
   link: string;
