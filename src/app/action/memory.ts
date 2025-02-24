@@ -42,12 +42,10 @@ const context = result?.matches.map(({metadata})=>{
     // send relavant to gemini
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const response = await model.generateContent({
-      contents: [{ parts: [{ text: `Context:\n${context}\n\nQuestion: ${prompt}` }], role: "user" }],
-    });
+    const response = await model.generateContent(`You are a helpul AI agent. \n  Context:\n${context}\n \n Question: ${prompt}`);
 
 if(!response.response.candidates) throw new AppError("REsponse candidate was not defined")
-
+console.log(response.response)
     return {
       success: true,
       data: response.response.text(),
