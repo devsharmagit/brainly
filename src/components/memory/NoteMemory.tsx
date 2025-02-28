@@ -10,7 +10,7 @@ const NoteMemory = ({ memory }: NoteMemoryProps) => {
   console.log(memory.description);
   return (
 <div
-  className="relative border scrollbarhidden rounded-xl bg-[#042f2e] w-full py-4 overflow-hidden"
+  className="relative border scrollbarhidden rounded-xl bg-[#042f2e] w-full py-4 overflow-hidden max-h-fit"
   key={memory.id}
 >
   <div className="relative rounded-xl flex flex-col gap-y-2 px-4 max-h-52 overflow-y-scroll styled-scrollbar bg-gradient-to-b">
