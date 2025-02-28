@@ -12,8 +12,9 @@ const Page = () => {
 
   const handleClick = async () => {
     const result = await getAIChat({ prompt });
+    console.log(result)
 
-    const htmlString = await marked(result.data || "",);
+    const htmlString = await marked(result.data?.response || "",);
     if (ref1.current) ref1.current.innerHTML = htmlString;
   };
   return (

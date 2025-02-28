@@ -49,7 +49,7 @@ export const giveLinkDetails = async (link: string) => {
       .filter(Boolean)
       .join(". ")
       .split(" ")
-      .slice(0, 200)
+      .slice(0, 100)
       .join(" ");
 
     return {

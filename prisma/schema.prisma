@@ -19,6 +19,7 @@ model User {
   name     String?
   image    String?
   memories Memory[]
+  chats    Chat[]
 }
 
 model Memory {
@@ -32,6 +33,25 @@ model Memory {
   title       String?
   description String?
   imageUrl    String?
+  chats       ChatMemory[]
+}
+
+model Chat {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  context     ChatMemory[]
+  response    String
+  prompt      String
+}
+
+model ChatMemory {
+  chatId   Int
+  memoryId Int
+  chat     Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  memory   Memory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+
+  @@id([chatId, memoryId]) // Composite primary key for many-to-many relation
 }
 
 enum CATEGORY {
