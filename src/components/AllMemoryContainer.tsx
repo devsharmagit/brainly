@@ -8,7 +8,7 @@ import { Link2, Notebook, Twitter, Youtube } from "lucide-react";
 const AllMemoryContainer = ({ memories }: { memories: Memory[] }) => {
   return (
     <>
-      <div className="mt-5">
+      <div className="mt-20">
         <Tabs defaultValue="All">
           <TabsList className="bg-transparent gap-x-2">
             <TabsTrigger

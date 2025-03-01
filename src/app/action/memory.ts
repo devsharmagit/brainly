@@ -26,6 +26,10 @@ interface GetAIChatInterface {
   prompt: string;
 }
 
+// type ResponseAIChat = Chat & {
+// context : Memory[]
+// }
+
 export const getAIChat = authAsyncCatcher<
   GetAIChatInterface,
   Chat>(async ({ prompt, session }) => {
@@ -59,7 +63,7 @@ export const getAIChat = authAsyncCatcher<
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const response = await model.generateContent(
-    `You are a helpul AI agent. \n  Context:\n${context}\n \n Question: ${prompt}`
+    `You are a helpul AI agent that is designed to help the user. You should return the response in markdown. \n  Context:\n${context}\n \n Question: ${prompt}`
   );
 
   const chat =  await prisma.chat.create({
