@@ -14,6 +14,8 @@ import { genAI, generateEmbeddings } from "@/lib/embeddings";
 import { addVectorData, queryVectorDB } from "@/lib/pinecone";
 
 
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
 interface CreateMemoryLinkInterface {
   link: string;
 }
@@ -58,9 +60,6 @@ export const getAIChat = authAsyncCatcher<
     .join(" \n ");
 
     console.log(context)
-
-  // send relavant to gemini
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const response = await model.generateContent(
     `You are a helpul AI agent that is designed to help the user. You should return the response in markdown. \n  Context:\n${context}\n \n Question: ${prompt}`

@@ -87,4 +87,34 @@ body {
   width: 10px;
 }
 
+[class^="tweet-info"] {
+  display: none;
+  height: 0px;
+  margin: 0 !important;
+  padding: 0;
+}
+[class^="tweet-actions"] {
+  display: none;
+  height: 0px !important;
+  padding: 0px !important;
+  background-color: transparent;
+  color: transparent;
+  margin: 0;
+  border: 0px !important;
+}
+[class^="tweet-replies"] {
+  display: none;
+  height: 0px;
+}
+/* [class^="tweet-header"] {
+  display: none;
+  height: 0px;
+} */
+.tweet-header-module__A9EVQG__follow{
+  display: none;
+}
+.tweet-header-module__A9EVQG__separator{
+  display: none;
+}
+
 
