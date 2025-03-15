@@ -56,3 +56,15 @@ try {
   console.log(error)
 }
 }
+
+export const getVectorEmbeddigsById = async (id : number)=>{
+  try {
+  const result = await index.fetch([String(id)])
+  const {values} = result.records[String(id)]
+    return values
+
+  } catch (error) {
+    console.log(error)
+    return null
+  }
+}

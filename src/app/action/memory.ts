@@ -11,7 +11,7 @@ import {
 } from "@/lib/scrape";
 import { checkLinkType, contentMaker } from "@/lib/utils";
 import { genAI, generateEmbeddings } from "@/lib/embeddings";
-import { addVectorData, deleteVectorData, queryVectorDB } from "@/lib/pinecone";
+import { addVectorData, deleteVectorData, getVectorEmbeddigsById, queryVectorDB } from "@/lib/pinecone";
 
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -140,6 +140,64 @@ export const createMemoryLink = authAsyncCatcher<
 
   const category = checkLinkType(link);
   let memory;
+
+  const alreadyMemory = await prisma.memory.findFirst({
+    where:{
+      OR:[
+        {
+          AND: [
+            {link,
+              userId: session.user.id
+            }
+          ]
+        },
+        {link}
+      ]
+    },
+    orderBy: {userId: "desc"}
+  })
+console.log("##############################################")
+console.log(alreadyMemory)
+  if(alreadyMemory && (alreadyMemory.userId === session.user.id)){
+   throw new AppError("You have already saved that website.")
+  }
+
+  if(alreadyMemory){
+  console.log("😍😍😍😍😍😍😍😍")
+    const embeddings = await getVectorEmbeddigsById(alreadyMemory.id)
+    if(embeddings){
+      const newmemory = await prisma.memory.create(
+        {data : {
+          category: alreadyMemory.category,
+          description: alreadyMemory.description,
+          content: alreadyMemory.content,
+          imageUrl: alreadyMemory.imageUrl,
+          link: alreadyMemory.link,
+          title: alreadyMemory.title,
+          userId: session.user.id
+        }}
+      )
+      if(newmemory){
+        console.log("❤️❤️❤️❤️❤️❤️❤️❤️❤️")
+        await addVectorData({
+          id: newmemory.id,
+          vector_embeddings: embeddings,
+          metaData: {
+            content: newmemory.content,
+            userId: newmemory.userId,
+            memoryId: newmemory.id,
+          },
+        });
+      
+        revalidatePath("/dashboard");
+        return {
+          success: true,
+          data: newmemory,
+          message: "Memory created suucessfully !",
+        };
+      }
+    }
+  }
 
   if (checkLinkType(link) === "YTLINK") {
     const scrapeDetails = await getYoutubeDetails(link);
