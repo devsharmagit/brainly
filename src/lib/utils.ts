@@ -9,6 +9,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 
+export const extractYoutubeId = (link: string) => {
+  const match = link.match(/[?&]v=([^&]+)/);
+  return match ? match[1] : null;
+};
+
+export const extractTweetId = (link: string): string | null => {
+  const match = link.match(/status\/(\d+)/);
+  return match ? match[1] : null;
+};
 
 
 export function checkLinkType(link : string) {
@@ -19,11 +28,11 @@ export function checkLinkType(link : string) {
         const url = new URL(link);
         const hostname = url.hostname.toLowerCase();
 
-        if (hostname.includes('youtube.com') || hostname === 'youtu.be') {
+        if ((hostname.includes('youtube.com') || hostname === 'youtu.be') && extractYoutubeId(link)) {
             return CATEGORY.YTLINK;
         }
 
-        if (hostname.includes('twitter.com') || hostname.includes('x.com')) {
+        if ((hostname.includes('twitter.com') || hostname.includes('x.com')) && extractTweetId(link) ) {
             return CATEGORY.TWTLINK;
         }
 

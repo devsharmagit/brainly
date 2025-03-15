@@ -5,6 +5,8 @@ import { unstable_cache } from "next/cache";
 import { TwitterComponents, EmbeddedTweet, TweetSkeleton } from "react-tweet";
 import { getTweet as _getTweet } from "react-tweet/api";
 import TweetNotFound from "../TweetNotFound";
+import { extractTweetId } from "@/lib/utils";
+import DeleteMemory from "../DeleteMemory";
 
 const getTweet = unstable_cache(
   async (id: string) => _getTweet(id),
@@ -18,10 +20,6 @@ export const components: TwitterComponents = {
   TweetNotFound: TweetNotFound,
 };
 
-const extractTweetId = (link: string): string | null => {
-  const match = link.match(/status\/(\d+)/);
-  return match ? match[1] : null;
-};
 
 const TweetPage = async ({ id }: { id: string }) => {
   try {
@@ -46,7 +44,10 @@ const TwitterMemory = ({ memory }: { memory: Memory }) => {
 
   return (
     <Suspense fallback={<TweetSkeleton />}>
+      <div className="relative">
+        <DeleteMemory  id={memory.id}/>
       <TweetPage id={tweetId} />
+      </div>
     </Suspense>
   );
 };

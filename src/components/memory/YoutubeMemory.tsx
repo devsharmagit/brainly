@@ -1,13 +1,11 @@
 "use client";
 import { Card } from "@/components/ui/card";
+import { extractYoutubeId } from "@/lib/utils";
 import { Memory } from "@prisma/client";
 import React from "react";
 import YouTube from "react-youtube";
+import DeleteMemory from "../DeleteMemory";
 
-const extractYoutubeId = (link: string) => {
-  const match = link.match(/[?&]v=([^&]+)/);
-  return match ? match[1] : null;
-};
 
 const YoutubeMemory = ({ memory }: { memory: Memory }) => {
   if (!memory.link) return null;
@@ -26,7 +24,8 @@ const YoutubeMemory = ({ memory }: { memory: Memory }) => {
   //    }
 
   return (
-    <Card className="min-w-80 min-h-24 overflow-hidden" key={memory.id}>
+    <Card className="min-w-80 min-h-24 overflow-hidden relative" key={memory.id}>
+      <DeleteMemory id={memory.id} />
       <YouTube videoId={youtubeId} opts={{ width: "100%", hight: "100%" }} />
     </Card>
   );

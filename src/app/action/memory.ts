@@ -11,8 +11,7 @@ import {
 } from "@/lib/scrape";
 import { checkLinkType, contentMaker } from "@/lib/utils";
 import { genAI, generateEmbeddings } from "@/lib/embeddings";
-import { addVectorData, queryVectorDB } from "@/lib/pinecone";
-
+import { addVectorData, deleteVectorData, queryVectorDB } from "@/lib/pinecone";
 
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
@@ -32,68 +31,67 @@ interface GetAIChatInterface {
 // context : Memory[]
 // }
 
-export const getAIChat = authAsyncCatcher<
-  GetAIChatInterface,
-  Chat>(async ({ prompt, session }) => {
-  // convert to embeddings
-  const embedding = await generateEmbeddings(prompt);
+export const getAIChat = authAsyncCatcher<GetAIChatInterface, Chat>(
+  async ({ prompt, session }) => {
+    // convert to embeddings
+    const embedding = await generateEmbeddings(prompt);
 
-  if (!embedding)
-    throw new AppError("Something went wront generating embeddings");
+    if (!embedding)
+      throw new AppError("Something went wront generating embeddings");
 
-  // query using embedding
-  const result = await queryVectorDB(session.user.id, embedding);
+    // query using embedding
+    const result = await queryVectorDB(session.user.id, embedding);
 
-  console.log(result)
-  const memoriesIds = result?.matches.map(({ metadata }) => {
-    if (metadata) {
-      return Number(metadata.memoryId);
-    }
-  });
-
-
-  const context = result?.matches
-    .map(({ metadata }) => {
-      if (!metadata) return "";
-      return metadata.content;
-    })
-    .join(" \n ");
-
-    console.log(context)
-
-  const response = await model.generateContent(
-    `You are a helpul AI agent that is designed to help the user. You should return the response in markdown. \n  Context:\n${context}\n \n Question: ${prompt}`
-  );
-
-  const chat =  await prisma.chat.create({
-    data: {
-      prompt,
-      response: response.response.text(),
-      userId: session.user.id,
-      context: {
-        create: memoriesIds?.map((memoryId) => ({
-          memory: {
-            connect: { id: memoryId },
-          },
-        })),
-      },
-    },
-    include:{
-      context:{
-        include:{memory: true}
+    console.log(result);
+    const memoriesIds = result?.matches.map(({ metadata }) => {
+      if (metadata) {
+        return Number(metadata.memoryId);
       }
-    }
-  });
+    });
 
-  if (!response.response.candidates)
-    throw new AppError("REsponse candidate was not defined");
-  console.log(response.response);
-  return {
-    success: true,
-    data: chat,
-    message: "Successfully fetched the result",
-  };
-});
+    const context = result?.matches
+      .map(({ metadata }) => {
+        if (!metadata) return "";
+        return metadata.content;
+      })
+      .join(" \n ");
+
+    console.log(context);
+
+    const response = await model.generateContent(
+      `You are a helpul AI agent that is designed to help the user. You should return the response in markdown. \n  Context:\n${context}\n \n Question: ${prompt}`
+    );
+
+    const chat = await prisma.chat.create({
+      data: {
+        prompt,
+        response: response.response.text(),
+        userId: session.user.id,
+        context: {
+          create: memoriesIds?.map((memoryId) => ({
+            memory: {
+              connect: { id: memoryId },
+            },
+          })),
+        },
+      },
+      include: {
+        context: {
+          include: { memory: true },
+        },
+      },
+    });
+
+    if (!response.response.candidates)
+      throw new AppError("REsponse candidate was not defined");
+    console.log(response.response);
+    return {
+      success: true,
+      data: chat,
+      message: "Successfully fetched the result",
+    };
+  }
+);
 
 export const createMemoryNote = authAsyncCatcher<
   CreateMemoryNoteInterface,
@@ -257,7 +255,7 @@ export const deleteMemory = authAsyncCatcher<{ id: number }, null>(
     });
 
     if (!isUserMemory) {
-      throw new AppError("You dont have permissions to perform the operation.");
+      throw new AppError("You dont have permissions to perform the action.");
     }
     await prisma.memory.delete({
       where: {
@@ -265,6 +263,9 @@ export const deleteMemory = authAsyncCatcher<{ id: number }, null>(
         userId: session.user.id,
       },
     });
+    
+    await deleteVectorData(String(id));
+
     revalidatePath("/dashboard");
 
     return {

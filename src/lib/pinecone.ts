@@ -33,9 +33,9 @@ export const addVectorData = async ({
   }
 };
 
-export const deleteVectorData = async (id: string) => {
+export const deleteVectorData = async (memoryId: string) => {
   try {
-    await index.deleteOne(id);
+    await index.deleteOne(memoryId);
   } catch (error) {
     console.log(error);
   }
