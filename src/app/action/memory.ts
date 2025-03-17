@@ -293,6 +293,9 @@ export const getAllMemories = authAsyncCatcher<void, Memory[]>(
   async ({ session }) => {
     const allMemories = await prisma.memory.findMany({
       where: { userId: session.user.id },
+      orderBy: {
+        createdAt: "desc"
+      }
     });
 
     return {
