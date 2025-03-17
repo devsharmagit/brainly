@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { noteSchema, NoteSchemaType } from "@/lib/formSchema";
@@ -13,10 +13,12 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast";
 import { createMemoryNote } from "@/app/action/memory";
+import { Loader } from "lucide-react";
 
 const NoteForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
   
   const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<NoteSchemaType>({
     resolver: zodResolver(noteSchema),
@@ -28,11 +30,13 @@ const NoteForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
   const handleFormClose = ()=>{
     form.reset()
     form.clearErrors()
+    setIsLoading(false)
     handleDialogClose()
   }
 
   const onSubmit = async ({ content }: NoteSchemaType) => {
     if (!content) return;
+    setIsLoading(true)
     const result = await createMemoryNote({ content });
     if(result.success){
       toast({description: result.message, variant: "success"})
@@ -49,7 +53,7 @@ const NoteForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
   return (
     <div>
       <div className="mb-2 mt-4">
-        <p className="text-sm"> Add any text or note.</p>
+        <p className="text-sm text-muted-foreground"> Add any text or note.</p>
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -66,8 +70,12 @@ const NoteForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
             )}
           />
           <Button type="submit" className="!mt-4">
-            Submit
+            {isLoading ? <>   <Loader className="animate-spin mr-2 h-6 w-6"  /> Loading... </> : "Save Memory"}
+            
           </Button>
+          <p className="text-muted-foreground !mt-2 text-xs">
+            Save note to your memory!
+          </p>
         </form>
       </Form>
     </div>

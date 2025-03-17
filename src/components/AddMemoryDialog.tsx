@@ -33,33 +33,36 @@ export function AddMemoryDialog() {
           </span>
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px]  sm:min-h-[370px] block space-y-6">
+        <DialogHeader className="max-h-fit">
           <DialogTitle className="text-2xl">Add a Memory</DialogTitle>
           <DialogDescription className="text-sm !mt-0">
             Add a memory to not forget about it.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid mt-2">
-          <Tabs defaultValue="account" className=" bg-transparent">
-            <TabsList className="gap-1">
-              <TabsTrigger value="link">
-                <div className=" flex gap-1 items-center">
-                  <Link2 className="text-green-500 w-5 h-5" />
-                  <p className="text-base ">Link</p>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger value="note">
-                <div className="  flex gap-1 items-center">
-                  <Notebook className="text-blue-500 w-5 h-5" />
-                  <p className="text-base ">Note</p>
-                </div>
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="link">
+        <div className="grid">
+          <Tabs defaultValue="link" className=" bg-transparent">
+          <TabsList className="bg-transparent gap-x-2">
+            <TabsTrigger
+              className=" text-base  data-[state=active]:bg-green-700 flex gap-2"
+              value="Links"
+            >
+              <Link2 />
+              Links
+            </TabsTrigger>
+            <TabsTrigger
+              className=" text-base  data-[state=active]:bg-blue-700 flex gap-2"
+              value="Notes"
+            >
+              <Notebook />
+              Notes
+            </TabsTrigger>
+           
+          </TabsList>
+            <TabsContent value="Links">
               <LinkForm handleDialogClose={handleDialogClose} />
             </TabsContent>
-            <TabsContent value="note">
+            <TabsContent value="Notes">
               <NoteForm handleDialogClose={handleDialogClose} />
             </TabsContent>
           </Tabs>
