@@ -23,26 +23,35 @@ model User {
 }
 
 model Memory {
-  id          Int      @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   category    CATEGORY
   content     String
   link        String?
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
+  user        User         @relation(fields: [userId], references: [id])
+  createdAt   DateTime     @default(now())
   title       String?
   description String?
   imageUrl    String?
   chats       ChatMemory[]
 }
-
+// Chat is equvivalent to conversation
 model Chat {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  context     ChatMemory[]
-  response    String
-  prompt      String
+  id       Int          @id @default(autoincrement())
+  userId   Int
+  user     User         @relation(fields: [userId], references: [id])
+  context  ChatMemory[]
+  response String
+  prompt   String
+  messages Message[]
+}
+
+model Message {
+  id         Int     @id @default(autoincrement())
+  chatId     Int
+  chat       Chat    @relation(fields: [chatId], references: [id])
+  isSentbyAI Boolean
+  message    String
 }
 
 model ChatMemory {
