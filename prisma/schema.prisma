@@ -44,6 +44,8 @@ model Chat {
   response String
   prompt   String
   messages Message[]
+  contextString String
+  createAt   DateTime @default(now())
 }
 
 model Message {
@@ -52,6 +54,7 @@ model Message {
   chat       Chat    @relation(fields: [chatId], references: [id])
   isSentbyAI Boolean
   message    String
+  createAt   DateTime @default(now())
 }
 
 model ChatMemory {

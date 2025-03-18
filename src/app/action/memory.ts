@@ -10,10 +10,10 @@ import {
   giveTweetInfo,
 } from "@/lib/scrape";
 import { checkLinkType, contentMaker } from "@/lib/utils";
-import { genAI, generateEmbeddings } from "@/lib/embeddings";
+import { generateEmbeddings, model } from "@/lib/embeddings";
 import { addVectorData, deleteVectorData, getVectorEmbeddigsById, queryVectorDB } from "@/lib/pinecone";
 
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
 
 interface CreateMemoryLinkInterface {
   link: string;
@@ -66,6 +66,7 @@ export const getAIChat = authAsyncCatcher<GetAIChatInterface, Chat>(
       data: {
         prompt,
         response: response.response.text(),
+        contextString: context || "",
         userId: session.user.id,
         context: {
           create: memoriesIds?.map((memoryId) => ({
@@ -82,8 +83,9 @@ export const getAIChat = authAsyncCatcher<GetAIChatInterface, Chat>(
       },
     });
 
-    if (!response.response.candidates)
+    if (!response.response.candidates){
       throw new AppError("REsponse candidate was not defined");
+    }
     console.log(response.response);
     return {
       success: true,
