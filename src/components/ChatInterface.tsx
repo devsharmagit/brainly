@@ -66,7 +66,7 @@ export default function ChatInterface({
   const [messageState, setMessageState] = useState<Message[]>(messages);
 
   return (
-    <div className="py-3 px-4 w-full max-w-7xl m-auto h-[90vh] flex ">
+    <div className="py-3 px-4 w-full max-w-7xl h-[90vh] flex ">
       <div className="flex-1 flex flex-col">
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">

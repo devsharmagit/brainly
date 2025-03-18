@@ -3,10 +3,18 @@
 import { AppError, authAsyncCatcher } from "@/lib/asyncCatcher";
 import { model } from "@/lib/embeddings";
 import { prisma } from "@/lib/prisma";
-import { Chat, Message } from "@prisma/client";
+import { Chat, Memory, Message } from "@prisma/client";
+
+type ChatWithContext = Chat & {
+  context : {
+    chatId: number,
+    memoryId: number,
+    memory: Memory
+  }[]
+}
 
 interface ChatResposneInterface {
-    chat: Chat,
+    chat: ChatWithContext,
     messages: Message[]
 }
 
