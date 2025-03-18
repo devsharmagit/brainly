@@ -123,6 +123,12 @@ export const messageSent = authAsyncCatcher<MessageSentProps, Message>(
 interface GetAllChatResponse {
   id: number;
   prompt: string;
+  createAt: Date;
+  _count: {
+      user: number;
+      context: number;
+      messages: number;
+  };
 }
 
 export const getAllChat = authAsyncCatcher<void, GetAllChatResponse[]>(
@@ -134,7 +140,12 @@ export const getAllChat = authAsyncCatcher<void, GetAllChatResponse[]>(
       select: {
         id: true,
         prompt: true,
+        createAt: true,
+        _count: true,
       },
+      orderBy:{
+        createAt: "desc"
+      }
     });
 
     return {
