@@ -6,12 +6,13 @@ import ReactMarkdown from "react-markdown";
 const AIResponse = ({ response }: { response: string }) => {
   return (
     <div className={cn("flex gap-2 max-w-[75%]")}>
-      <div className="relative w-10 h-10 mr-2">
+      <div className="relative w-8 h-8 min-w-8">
         <Image
           src="/gemini.png"
           alt="Gemini AI"
-          className="object-contain"
-         fill
+          className="object-contain h-10 w-10"
+         height={32}
+         width={32}
         />
       </div>
 

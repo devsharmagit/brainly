@@ -35,7 +35,7 @@ const TweetPage = async ({ id }: { id: string }) => {
   }
 };
 
-const TwitterMemory = ({ memory }: { memory: Memory }) => {
+const TwitterMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : boolean | undefined }) => {
   if (!memory.link) return null;
 
   const tweetId = extractTweetId(memory.link);
@@ -45,7 +45,7 @@ const TwitterMemory = ({ memory }: { memory: Memory }) => {
   return (
     <Suspense fallback={<TweetSkeleton />}>
       <div className="relative">
-        <DeleteMemory  id={memory.id}/>
+      {!isForDisplay && <DeleteMemory id={memory.id} /> } 
       <TweetPage id={tweetId} />
       </div>
     </Suspense>

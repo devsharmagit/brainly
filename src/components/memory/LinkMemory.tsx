@@ -6,10 +6,10 @@ import Link from 'next/link'
 import { Button } from "../ui/button";
 import DeleteMemory from "../DeleteMemory";
 
-const LinkMemory = ({ memory }: { memory: Memory }) => {
+const LinkMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : boolean | undefined }) => {
   return (
     <Card className="min-w-80  p-0 overflow-hidden bg-gray-500/20 max-h-fit relative" key={memory.id}>
- <DeleteMemory id={memory.id} />
+      {!isForDisplay && <DeleteMemory id={memory.id} /> } 
       <CardContent className="p-0 flex flex-col overflow-hidden gap-y-2 relative">
         <div className="absolute top-4 left-4 flex gap-1 items-center w-fit bg-gray-800 rounded px-2 py-1 ">
           <Globe className="h-4 w-4 text-green-500" />

@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { SendHorizontal, AlertCircle } from "lucide-react";
+import { SendHorizontal, AlertCircle, Loader2 } from "lucide-react";
 import { getAIChat } from "@/app/action/memory";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
@@ -80,7 +80,7 @@ const MessageForm = () => {
               disabled={isLoading}
               className="bg-green-800 border-gray-600 text-white font-semibold hover:bg-green-700"
             >
-              <SendHorizontal /> <span> Send </span>
+             {isLoading ? <> <Loader2  className=' animate-spin'/> <span> Loading ...</span></>     : <> <SendHorizontal /> <span> Send </span></>}
             </Button>
           </form>
         </Form>

@@ -19,7 +19,7 @@ const Context: React.FC<ContextProps> = ({ memories }) => {
   const [isContextOpen, setIsContextOpen] = useState(false);
 
   return (
-    <div className="max-w-80 py-4">
+    <div className="max-w-96 px-4 py-4 h-[90vh] ">
       <p className="text-muted-foreground text-xs"> Here is the context of your chat. </p>
       <div
         onClick={() => {
@@ -31,9 +31,9 @@ const Context: React.FC<ContextProps> = ({ memories }) => {
         {isContextOpen ? <ChevronUp /> : <ChevronDown />}
       </div>
       <div 
-        className={`max-w-80 flex flex-col gap-4 overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`grid grid-cols-1 px-2 gap-4 transition-all overflow-y-scroll duration-300 ease-in-out ${
           isContextOpen 
-            ? "max-h-screen opacity-100" 
+            ? "max-h-[80vh] opacity-100" 
             : "max-h-0 opacity-0"
         }`}
       >
@@ -41,7 +41,7 @@ const Context: React.FC<ContextProps> = ({ memories }) => {
           switch (memory.memory.category) {
             case "NOTE":
               return (
-                <NoteMemory key={memory.memory.id} memory={memory.memory} />
+                <NoteMemory key={memory.memory.id} memory={memory.memory} isForDisplay/>
               );
             case "TWTLINK":
               return (
@@ -52,11 +52,11 @@ const Context: React.FC<ContextProps> = ({ memories }) => {
               );
             case "YTLINK":
               return (
-                <YoutubeMemory key={memory.memory.id} memory={memory.memory} />
+                <YoutubeMemory key={memory.memory.id} memory={memory.memory} isForDisplay />
               );
             case "LINK":
               return (
-                <LinkMemory key={memory.memory.id} memory={memory.memory} />
+                <LinkMemory key={memory.memory.id} memory={memory.memory}  isForDisplay/>
               );
             default:
               return null;

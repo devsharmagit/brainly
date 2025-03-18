@@ -43,7 +43,7 @@ export const getChatById = authAsyncCatcher<{ chatId: number }, ChatResposneInte
             chatId: chatId
         },
         orderBy:{
-            createAt: "asc"
+            createAt: "desc"
         }
     })
 
