@@ -31,6 +31,9 @@ export const getChatById = authAsyncCatcher<{ chatId: number }, ChatResposneInte
           include: {
             memory: true,
           },
+          orderBy: {
+            score: "desc"
+          }
         },
       },
     });

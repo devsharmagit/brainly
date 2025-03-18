@@ -60,6 +60,7 @@ model Message {
 model ChatMemory {
   chatId   Int
   memoryId Int
+  score    Float  @default(0)
   chat     Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
   memory   Memory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
 

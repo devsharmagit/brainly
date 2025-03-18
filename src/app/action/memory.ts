@@ -42,10 +42,9 @@ export const getAIChat = authAsyncCatcher<GetAIChatInterface, Chat>(
     // query using embedding
     const result = await queryVectorDB(session.user.id, embedding);
 
-    console.log(result);
-    const memoriesIds = result?.matches.map(({ metadata }) => {
+    const memoryData = result?.matches.map(({ metadata, score }) => {
       if (metadata) {
-        return Number(metadata.memoryId);
+        return {memoryId : Number(metadata.memoryId), score};
       }
     });
 
@@ -56,7 +55,6 @@ export const getAIChat = authAsyncCatcher<GetAIChatInterface, Chat>(
       })
       .join(" \n ");
 
-    console.log(context);
 
     const response = await model.generateContent(
       `You are a helpul AI agent that is designed to help the user. You should return the response in markdown. \n  Context:\n${context}\n \n Question: ${prompt}`
@@ -69,10 +67,11 @@ export const getAIChat = authAsyncCatcher<GetAIChatInterface, Chat>(
         contextString: context || "",
         userId: session.user.id,
         context: {
-          create: memoriesIds?.map((memoryId) => ({
+          create: memoryData?.map((data) => ({
             memory: {
-              connect: { id: memoryId },
+              connect: { id: data?.memoryId },
             },
+            score: data?.score
           })),
         },
       },
@@ -86,7 +85,6 @@ export const getAIChat = authAsyncCatcher<GetAIChatInterface, Chat>(
     if (!response.response.candidates){
       throw new AppError("REsponse candidate was not defined");
     }
-    console.log(response.response);
     return {
       success: true,
       data: chat,
@@ -158,14 +156,11 @@ export const createMemoryLink = authAsyncCatcher<
     },
     orderBy: {userId: "desc"}
   })
-console.log("##############################################")
-console.log(alreadyMemory)
   if(alreadyMemory && (alreadyMemory.userId === session.user.id)){
    throw new AppError("You have already saved that website.")
   }
 
   if(alreadyMemory){
-  console.log("😍😍😍😍😍😍😍😍")
     const embeddings = await getVectorEmbeddigsById(alreadyMemory.id)
     if(embeddings){
       const newmemory = await prisma.memory.create(
@@ -180,7 +175,6 @@ console.log(alreadyMemory)
         }}
       )
       if(newmemory){
-        console.log("❤️❤️❤️❤️❤️❤️❤️❤️❤️")
         await addVectorData({
           id: newmemory.id,
           vector_embeddings: embeddings,
