@@ -8,7 +8,7 @@ import DeleteMemory from "../DeleteMemory";
 
 const LinkMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : boolean | undefined }) => {
   return (
-    <Card className="min-w-80  p-0 overflow-hidden bg-gray-500/20 max-h-fit relative" key={memory.id}>
+    <Card className="min-w-80  p-0 overflow-hidden bg-[#1c1e22] max-h-fit relative" key={memory.id}>
       {!isForDisplay && <DeleteMemory id={memory.id} /> } 
       <CardContent className="p-0 flex flex-col overflow-hidden gap-y-2 relative">
         <div className="absolute top-4 left-4 flex gap-1 items-center w-fit bg-gray-800 rounded px-2 py-1 ">

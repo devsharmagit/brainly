@@ -61,7 +61,7 @@ export default function ChatInterface({
           </Alert>
         )}
         <div className="p-4 border-t">
-          <div className="border-0 bg-gray-500/20 rounded-xl overflow-hidden flex gap-4 px-2 py-3">
+          <div className="border-0 bg-[#1c1e22] rounded-xl overflow-hidden flex gap-4 px-2 py-3">
             {/* TODO separate send message form */}
             <SendMessageForm
               isLoading={isLoading}

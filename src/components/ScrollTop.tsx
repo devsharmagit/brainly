@@ -14,7 +14,7 @@ export default function ScrollToTopView() {
   return (
     <div className="text-center mt-5">
       <Button
-      variant={"link"}
+      variant={"outline"}
         onClick={handleScroll}
         className="text-muted-foreground"
       >

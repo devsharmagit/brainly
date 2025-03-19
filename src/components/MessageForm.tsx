@@ -52,7 +52,7 @@ const MessageForm = () => {
 
   return (
     <>
-      <div className="border-0 bg-gray-500/20 rounded-xl overflow-hidden flex gap-4 px-2 py-3">
+      <div className="border-0 bg-[#1c1e22] rounded-xl overflow-hidden flex gap-4 px-2 py-3">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

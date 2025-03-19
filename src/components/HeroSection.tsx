@@ -11,9 +11,7 @@ const HeroSection = async () => {
       <h1 className="relative z-10 text-lg md:text-5xl  bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-600 font-sans font-bold mb-10">
         Hello, {session?.user.name}
       </h1>
-
       <MessageForm />
-
       <div></div>
     </div>
   );

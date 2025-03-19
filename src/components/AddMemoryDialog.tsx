@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LinkForm from "./LinkForm";
 import NoteForm from "./NoteForm";
 import { useState } from "react";
+import { BackgroundGradient } from "./ui/background-gradient";
+ 
 
 export function AddMemoryDialog() {
   const [open, setOpen] = useState<boolean>(false);
@@ -22,16 +24,17 @@ export function AddMemoryDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="realtive hover:top-[-10px] top-0 transition-all w-full relative inline-flex h-36 overflow-hidden rounded-3xl p-[4px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
-          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#d7ffcb_0%,#393BB2_50%,#E2CBFF_100%)]" />
-          <span className="inline-flex gap-2 h-full w-full cursor-pointer items-center justify-center rounded-3xl bg-slate-950 px-3 py-1  font-medium text-gray-200 backdrop-blur-3xl text-lg">
-            <PlusCircle />
-            <p>
-            Add a Memory
-            </p>
-
-          </span>
-        </button>
+        <button className="w-full">
+        <BackgroundGradient className="rounded-[22px] max-w-sm p-4 sm:p-10 bg-white dark:bg-zinc-900 flex items-center gap-2 text-center justify-center">
+          
+          <PlusCircle />
+              <p>
+              Add a Memory
+              </p>
+            
+          </BackgroundGradient>
+        </button>     
+    
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]  sm:min-h-[370px] block space-y-6">
         <DialogHeader className="max-h-fit">
