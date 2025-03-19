@@ -5,6 +5,8 @@ import { Appbar } from "@/components/AppBar";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
+  const location = new URL(window.location.href);
+
   return (
     <SessionProvider>
       <ThemeProvider
@@ -13,7 +15,9 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         enableSystem
         disableTransitionOnChange
       >
-        <Appbar />
+        
+        {location.pathname !== "/" && <Appbar />}
+
         {children}
       </ThemeProvider>
     </SessionProvider>
