@@ -24,10 +24,18 @@ export default function Navbar() {
       </Link>
 
       <div className="hidden md:flex items-center space-x-8">
-        <NavLink href="/features">Features</NavLink>
-        <NavLink href="/how-it-works">How it Works</NavLink>
-        <NavLink href="/examples">Examples</NavLink>
-        <NavLink href="/pricing">Pricing</NavLink>
+        <div
+          onClick={handleSignClick}
+          className="text-gray-300 hover:cursor-pointer hover:text-white transition-colors relative group flex gap-2"
+        >
+          Dashboard
+          <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all group-hover:w-full" />
+        </div>
+        <NavLink href="https://github.com/devsharmagit/brainly/">
+          {" "}
+          GitHub
+        </NavLink>
+        <NavLink href="https://x.com/CodeDevsharma">Contact</NavLink>
       </div>
 
       <div className="hidden md:flex items-center space-x-4">
@@ -63,7 +71,8 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="text-gray-300 hover:text-white transition-colors relative group"
+      target="_blank"
+      className="text-gray-300 hover:text-white transition-colors relative group flex gap-2"
     >
       {children}
       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all group-hover:w-full" />
