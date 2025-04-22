@@ -5,7 +5,7 @@ import DeleteMemory from "../DeleteMemory";
 
 
 
-const NoteMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : boolean | undefined }) => {
+const NoteMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay ?: boolean  }) => {
   return (
 <div
   className="relative border scrollbarhidden rounded-xl bg-[#042f2e] w-full py-4 overflow-hidden max-h-fit"

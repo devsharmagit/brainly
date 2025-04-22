@@ -10,7 +10,7 @@ const AllMemoryContainer = ({ memories }: { memories: Memory[] }) => {
     <>
       <div className="mt-20">
         <Tabs defaultValue="All">
-          <TabsList className="bg-transparent gap-x-2">
+          <TabsList className="bg-transparent gap-x-2 mb-5">
             <TabsTrigger
               value="All"
               className=" data-[state=active]:bg-gray-700 text-base "

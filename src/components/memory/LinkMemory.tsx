@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Button } from "../ui/button";
 import DeleteMemory from "../DeleteMemory";
 
-const LinkMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : boolean | undefined }) => {
+const LinkMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay ?: boolean  }) => {
   return (
     <Card className="min-w-80  p-0 overflow-hidden bg-[#1c1e22] max-h-fit relative" key={memory.id}>
       {!isForDisplay && <DeleteMemory id={memory.id} /> } 
@@ -15,12 +15,17 @@ const LinkMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : b
           <Globe className="h-4 w-4 text-green-500" />
           <p className="text-xs text-gray-400 "> Web </p>
         </div>
-        {memory.imageUrl && (
+        {memory.imageUrl ? (
           <img
             src={memory.imageUrl}
             className="w-full h-40 object-center object-cover overflow-hidden"
           />
-        )}
+        ) : 
+        <img
+        src="/brokenimage.png"
+        className="w-full h-40 object-center object-contain overflow-hidden"
+      />
+      }
         <div className="px-4 py-2 text-base leading-tight text-gray-200 whitespace-pre-line flex flex-col gap-3">
           <p>{memory.title}</p>
           {memory.description && (

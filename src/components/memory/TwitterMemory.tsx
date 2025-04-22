@@ -35,7 +35,7 @@ const TweetPage = async ({ id }: { id: string }) => {
   }
 };
 
-const TwitterMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : boolean | undefined }) => {
+const TwitterMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay ?: boolean  }) => {
   if (!memory.link) return null;
 
   const tweetId = extractTweetId(memory.link);

@@ -7,7 +7,7 @@ import YouTube from "react-youtube";
 import DeleteMemory from "../DeleteMemory";
 
 
-const YoutubeMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : boolean | undefined }) => {
+const YoutubeMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay ?: boolean }) => {
   if (!memory.link) return null;
 
   const youtubeId = extractYoutubeId(memory.link);
