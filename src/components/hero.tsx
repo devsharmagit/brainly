@@ -26,7 +26,6 @@ export default function Hero() {
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
             Unlock the Power of Your 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
-                {" "}
             Bookmarks with
                 AI 
               </span>
