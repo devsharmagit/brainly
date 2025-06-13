@@ -45,7 +45,7 @@ export const getAIChat = authAsyncCatcher<GetAIChatInterface, Chat>(
       }
 
       // Filter memories by relevance score (only keep highly relevant ones)
-      const RELEVANCE_THRESHOLD = 0.4;
+      const RELEVANCE_THRESHOLD = 0.5;
       const relevantMatches = result.matches.filter(match => (match.score ?? 0) >= RELEVANCE_THRESHOLD);
 
       const memoryData = relevantMatches.map(({ metadata, score }) => {

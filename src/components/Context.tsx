@@ -16,7 +16,7 @@ interface ContextProps {
 }
 
 const Context: React.FC<ContextProps> = ({ memories }) => {
-  const [isContextOpen, setIsContextOpen] = useState(false);
+  const [isContextOpen, setIsContextOpen] = useState(true);
 
   return (
     <div className="max-w-96 px-4 py-4 h-[90vh] ">

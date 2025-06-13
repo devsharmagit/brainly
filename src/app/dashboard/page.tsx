@@ -16,9 +16,9 @@ const Page = async () => {
   if (!memories.data) return null;
 
   return (
-    <div className="py-3 px-4 w-full max-w-7xl m-auto relative z-20 ">
+    <div className="py-3 w-full max-full m-auto relative z-20 ">
       <GridBackgroundContainer>
-        <div className="w-full flex flex-col items-center justify-center min-h-[70vh] relative z-20">
+        <div className="w-full flex flex-col px-4 max-w-7xl mx-auto items-center justify-center min-h-[70vh] relative z-20">
     <HeroSection />
       <Button variant={"outline"} className="flex">
       <Link  href={"/dashboard/chat"} className="flex items-center gap-2 text-muted-foreground"> <History /> Chat History </Link>

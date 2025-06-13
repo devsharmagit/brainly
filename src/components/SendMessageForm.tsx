@@ -93,7 +93,7 @@ const SendMessageForm = ({isLoading,setMessageState, setIsError, setIsLoading, c
       <Button
         type="submit"
         disabled={isLoading}
-        className="bg-green-800 border-gray-600 text-white font-semibold hover:bg-green-700"
+        className="bg-blue-600 border-gray-600 text-white font-semibold hover:bg-blue-700"
       >
         {isLoading ? <> <Loader2  className=' animate-spin'/> <span> Loading ...</span></>     : <> <SendHorizontal /> <span> Send </span></>} 
       </Button>

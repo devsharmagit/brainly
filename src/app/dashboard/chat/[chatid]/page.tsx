@@ -1,6 +1,7 @@
 import { getChatById } from "@/app/action/chat";
 import ChatInterface from "@/components/ChatInterface";
 import Context from "@/components/Context";
+import { Separator } from "@/components/ui/separator"
 
 export default async function Page({
   params,
@@ -16,10 +17,11 @@ export default async function Page({
   }
 
   return (
-    <div className="flex m-auto justify-center">
+    <div className="flex m-auto justify-center h-[90vh]">
       {/* ALL Chat component */}
       <ChatInterface chat={chat.data.chat} messages={chat.data.messages} />
       {/* context */}
+      <Separator orientation="vertical" className="border-red-500"/>
       <Context memories={chat.data.chat.context} />
     </div>
   );

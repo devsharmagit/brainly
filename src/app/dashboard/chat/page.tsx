@@ -1,8 +1,6 @@
 import { getAllChat } from "@/app/action/chat";
 import Link from "next/link";
-import { MessageSquare, ChevronRight, Calendar, Layers, MessageCircle, Plus } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { MessageSquare, ChevronRight, Plus, Calendar, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 
@@ -14,85 +12,65 @@ const Page = async () => {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10">
+    <main className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-              Your Conversations
-            </h1>
-            <p className="text-muted-foreground mt-2 text-lg">Continue where you left off or start a new chat</p>
+            <h1 className="text-3xl font-bold text-foreground">Conversations</h1>
+            <p className="text-muted-foreground mt-1">Continue where you left off</p>
           </div>
-          <Button className="mt-4 sm:mt-0" size="lg">
-            <Link href="/dashboard/chat/new" className="flex items-center gap-2 ">
-            <Plus className="h-5 w-5 mr-2" />
-            New Chat
+          <Button className="mt-4 sm:mt-0" size="sm">
+            <Link href="/dashboard/chat/new" className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              New Chat
             </Link>
           </Button>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-1">
           {result.data.map(({ id, prompt, createAt, _count }) => {
             const formattedDate = formatDistanceToNow(new Date(createAt), { addSuffix: true })
 
             return (
               <Link href={`/dashboard/chat/${id}`} key={id} className="block group">
-                <Card className="h-full overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg hover:scale-[1.02] bg-card/50 backdrop-blur-sm">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <Badge variant="secondary" className="mb-2 font-mono text-xs">
-                        {String(id).slice(0, 8)}...
-                      </Badge>
-                      <div className="flex items-center text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {formattedDate}
-                      </div>
-                    </div>
-                    <CardTitle className="flex items-center gap-2 text-lg mt-2">
-                      <MessageSquare className="h-5 w-5 text-primary" />
-                      <span className="truncate">Conversation</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pb-2">
-                    <CardDescription className="line-clamp-2 text-sm leading-relaxed">
-                      {prompt}
-                    </CardDescription>
-                  </CardContent>
-                  <CardFooter className="pt-2 flex-col items-start">
-                    <div className="w-full flex items-center justify-between text-xs text-muted-foreground mb-3">
-                      <div className="flex items-center gap-4">
-                        <span className="flex items-center bg-muted/50 px-2 py-1 rounded-full">
-                          <Layers className="h-3 w-3 mr-1" />
-                          {_count.context} contexts
+                <div className="flex items-center justify-between p-4 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <MessageSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {prompt}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {formattedDate}
                         </span>
-                        <span className="flex items-center bg-muted/50 px-2 py-1 rounded-full">
-                          <MessageCircle className="h-3 w-3 mr-1" />
-                          {_count.messages} messages
+                        <span className="flex items-center gap-1">
+                          <MessageCircle className="h-3 w-3" />
+                          {_count.messages}
                         </span>
                       </div>
                     </div>
-                    <div className="w-full flex justify-end">
-                      <span className="flex items-center gap-1 text-primary text-sm font-medium group-hover:underline">
-                        Continue <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                      </span>
-                    </div>
-                  </CardFooter>
-                </Card>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
+                </div>
               </Link>
             )
           })}
         </div>
 
         {result.data.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-12 text-center bg-card/50 backdrop-blur-sm">
-            <div className="rounded-full bg-primary/10 p-4 mb-6">
-              <MessageSquare className="h-12 w-12 text-primary" />
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="rounded-full bg-muted p-3 mb-4">
+              <MessageSquare className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="text-2xl font-semibold mb-2">No conversations yet</h3>
-            <p className="text-muted-foreground text-lg mb-6">Start a new chat to begin your journey</p>
-            <Button size="lg">
-              <Plus className="h-5 w-5 mr-2" />
-              Start New Chat
+            <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
+            <p className="text-muted-foreground mb-4">Start a new chat to begin</p>
+            <Button size="sm">
+              <Link href="/dashboard/chat/new" className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Start New Chat
+              </Link>
             </Button>
           </div>
         )}
@@ -102,4 +80,3 @@ const Page = async () => {
 }
 
 export default Page
-

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { MessageSchemaType, messageSchema } from "@/lib/formSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,8 +18,32 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useRouter } from "next/navigation";
 
 const MessageForm = () => {
+
+  const loadingTexts = useMemo(() => [
+    "Generating Embeddings...", "Fetching Memory...", "Thinking...", "Preparing Response...",
+  ], []);
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isError, setIsError] = useState<string | null>(null);
+  const [currentLoadingIndex, setCurrentLoadingIndex] = useState<number>(0);
+
+  
+    useEffect(()=>{
+      let interval : NodeJS.Timeout | null = null;
+      if(isLoading){
+        console.log("Loading started")
+       interval =   setInterval(() => {
+          setCurrentLoadingIndex((prevIndex) => {
+            const nextIndex = (prevIndex + 1) >= 4 ? prevIndex : (prevIndex + 1);
+            return nextIndex;
+          });
+        }, 2000);
+      }
+  
+      return()=>{
+        if(interval) clearInterval(interval);
+        setCurrentLoadingIndex(0);    }
+    }, [isLoading]);
 
   const router = useRouter();
 
@@ -80,7 +104,7 @@ const MessageForm = () => {
               disabled={isLoading}
               className="bg-blue-600 border-gray-600 text-white font-semibold hover:bg-blue-700"
             >
-             {isLoading ? <> <Loader2  className=' animate-spin'/> <span> Loading ...</span></>     : <> <SendHorizontal /> <span> Send </span></>}
+             {isLoading ? <> <Loader2  className=' animate-spin'/> <span> {loadingTexts[currentLoadingIndex]}</span></>     : <> <SendHorizontal /> <span> Send </span></>}
             </Button>
           </form>
         </Form>
