@@ -30,7 +30,6 @@ const LinkForm = ({ handleDialogClose }: { handleDialogClose: () => void }) => {
   });
 
   const content = form.watch("link");
-  console.log(content);
 
   useEffect(() => {
     if (!content) {

@@ -12,6 +12,7 @@ import {
 import { checkLinkType, contentMaker } from "@/lib/utils";
 import { generateEmbeddings, model } from "@/lib/embeddings";
 import { addVectorData, deleteVectorData, getVectorEmbeddigsById, queryVectorDB } from "@/lib/pinecone";
+import { linkSchema } from "@/lib/formSchema";
 
 
 
@@ -27,69 +28,94 @@ interface GetAIChatInterface {
   prompt: string;
 }
 
-// type ResponseAIChat = Chat & {
-// context : Memory[]
-// }
 
 export const getAIChat = authAsyncCatcher<GetAIChatInterface, Chat>(
   async ({ prompt, session }) => {
-    // convert to embeddings
-    const embedding = await generateEmbeddings(prompt);
-
-    if (!embedding)
-      throw new AppError("Something went wront generating embeddings");
-
-    // query using embedding
-    const result = await queryVectorDB(session.user.id, embedding);
-
-    const memoryData = result?.matches.map(({ metadata, score }) => {
-      if (metadata) {
-        return {memoryId : Number(metadata.memoryId), score};
+    try {
+      // convert to embeddings
+      const embedding = await generateEmbeddings(prompt);
+      if (!embedding) {
+        throw new AppError("Failed to generate embeddings for the prompt");
       }
-    });
 
-    const context = result?.matches
-      .map(({ metadata }) => {
-        if (!metadata) return "";
-        return metadata.content;
-      })
-      .join(" \n ");
+      // query using embedding
+      const result = await queryVectorDB(session.user.id, embedding);
+      if (!result?.matches?.length) {
+        throw new AppError("No relevant memories found to answer your question");
+      }
 
+      // Filter memories by relevance score (only keep highly relevant ones)
+      const RELEVANCE_THRESHOLD = 0.4;
+      const relevantMatches = result.matches.filter(match => (match.score ?? 0) >= RELEVANCE_THRESHOLD);
 
-    const response = await model.generateContent(
-      `You are a helpul AI agent that is designed to help the user. You should return the response in markdown. \n  Context:\n${context}\n \n Question: ${prompt}`
-    );
+      const memoryData = relevantMatches.map(({ metadata, score }) => {
+        if (!metadata?.memoryId) return null;
+        return {
+          memoryId: Number(metadata.memoryId),
+          score: score ?? 0
+        };
+      }).filter((data): data is { memoryId: number; score: number } => data !== null);
 
-    const chat = await prisma.chat.create({
-      data: {
-        prompt,
-        response: response.response.text(),
-        contextString: context || "",
-        userId: session.user.id,
-        context: {
-          create: memoryData?.map((data) => ({
-            memory: {
-              connect: { id: data?.memoryId },
-            },
-            score: data?.score
-          })),
+      // Format context in a more structured way
+      const context = relevantMatches
+        .map(({ metadata, score }) => {
+          if (!metadata?.content) return "";
+          return `[Relevance: ${((score ?? 0) * 100).toFixed(1)}%]\n${metadata.content}`;
+        })
+        .filter(Boolean)
+        .join("\n\n---\n\n");
+
+      const systemPrompt = `You are a helpful AI assistant that uses the user's personal memories to provide relevant and accurate answers. 
+Your responses should be:
+1. Based primarily on the provided context
+2. Clear and concise
+3. Formatted in markdown
+4. Honest about what you know and don't know
+5. Include relevant details from the context when appropriate
+
+If the context doesn't contain enough information to answer the question, say so clearly.`;
+
+      const response = await model.generateContent(
+        `${systemPrompt}\n\nContext:\n${context}\n\nQuestion: ${prompt}`
+      );
+
+      if (!response.response.candidates?.[0]?.content?.parts?.[0]?.text) {
+        throw new AppError("Failed to generate a valid response");
+      }
+
+      const chat = await prisma.chat.create({
+        data: {
+          prompt,
+          response: response.response.candidates[0].content.parts[0].text,
+          contextString: context,
+          userId: session.user.id,
+          context: {
+            create: memoryData.map((data) => ({
+              memory: {
+                connect: { id: data.memoryId },
+              },
+              score: data.score
+            })),
+          },
         },
-      },
-      include: {
-        context: {
-          include: { memory: true },
+        include: {
+          context: {
+            include: { memory: true },
+          },
         },
-      },
-    });
+      });
 
-    if (!response.response.candidates){
-      throw new AppError("REsponse candidate was not defined");
+      return {
+        success: true,
+        data: chat,
+        message: "Successfully generated response based on your memories",
+      };
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError("Failed to process your question. Please try again.");
     }
-    return {
-      success: true,
-      data: chat,
-      message: "Successfully fetched the result",
-    };
   }
 );
 
@@ -128,145 +154,124 @@ export const createMemoryNote = authAsyncCatcher<
   };
 });
 
-export const createMemoryLink = authAsyncCatcher<
-  CreateMemoryLinkInterface,
-  Memory
->(async ({ link, session }) => {
-  // TODO
-  // parsing with zod
-  if (!link) {
-    throw new AppError("Invalid Inputs !");
-  }
-
-  const category = checkLinkType(link);
-  let memory;
-
-  const alreadyMemory = await prisma.memory.findFirst({
-    where:{
-      OR:[
+// Helper functions for createMemoryLink
+async function checkExistingMemory(link: string, userId: number) {
+  return await prisma.memory.findFirst({
+    where: {
+      OR: [
         {
           AND: [
-            {link,
-              userId: session.user.id
-            }
+            { link, userId }
           ]
         },
-        {link}
+        { link }
       ]
     },
-    orderBy: {userId: "desc"}
-  })
-  if(alreadyMemory && (alreadyMemory.userId === session.user.id)){
-   throw new AppError("You have already saved that website.")
-  }
+    orderBy: { userId: "desc" }
+  });
+}
 
-  if(alreadyMemory){
-    const embeddings = await getVectorEmbeddigsById(alreadyMemory.id)
-    if(embeddings){
-      const newmemory = await prisma.memory.create(
-        {data : {
-          category: alreadyMemory.category,
-          description: alreadyMemory.description,
-          content: alreadyMemory.content,
-          imageUrl: alreadyMemory.imageUrl,
-          link: alreadyMemory.link,
-          title: alreadyMemory.title,
-          userId: session.user.id
-        }}
-      )
-      if(newmemory){
-        await addVectorData({
-          id: newmemory.id,
-          vector_embeddings: embeddings,
-          metaData: {
-            content: newmemory.content,
-            userId: newmemory.userId,
-            memoryId: newmemory.id,
-          },
-        });
-      
-        revalidatePath("/dashboard");
-        return {
-          success: true,
-          data: newmemory,
-          message: "Memory created suucessfully !",
-        };
-      }
+async function createMemoryFromExisting(existingMemory: Memory, userId: number) {
+  const embeddings = await getVectorEmbeddigsById(existingMemory.id);
+  if (!embeddings) return null;
+
+  const newMemory = await prisma.memory.create({
+    data: {
+      category: existingMemory.category,
+      description: existingMemory.description,
+      content: existingMemory.content,
+      imageUrl: existingMemory.imageUrl,
+      link: existingMemory.link,
+      title: existingMemory.title,
+      userId
     }
-  }
+  });
 
-  if (checkLinkType(link) === "YTLINK") {
-    const scrapeDetails = await getYoutubeDetails(link);
-    const content = contentMaker({
+  await addVectorData({
+    id: newMemory.id,
+    vector_embeddings: embeddings,
+    metaData: {
+      content: newMemory.content,
+      userId: newMemory.userId,
+      memoryId: newMemory.id,
+    },
+  });
+
+  return newMemory;
+}
+
+async function createYoutubeMemory(link: string, userId: number) {
+  const scrapeDetails = await getYoutubeDetails(link);
+  const content = contentMaker({
+    category: "YTLINK",
+    link,
+    details: scrapeDetails.details,
+    title: scrapeDetails.title,
+    description: scrapeDetails.description,
+    keywords: scrapeDetails.keywords,
+  });
+
+  return await prisma.memory.create({
+    data: {
+      link,
       category: "YTLINK",
-      link,
-      details: scrapeDetails.details,
+      userId,
       title: scrapeDetails.title,
-      description: scrapeDetails.description,
-      keywords: scrapeDetails.keywords,
-    });
-    memory = await prisma.memory.create({
-      data: {
-        link: link,
-        category: category,
-        userId: session.user.id,
-        title: scrapeDetails.title,
-        imageUrl: scrapeDetails.image,
-        content,
-      },
-    });
-  }
-  if (checkLinkType(link) === "LINK") {
-    const {
-      title,
-      description,
-      image,
-      content: details,
-      keywords,
-    } = await giveLinkDetails(link);
-    const content = contentMaker({
-      category: "LINK",
+      imageUrl: scrapeDetails.image,
+      content,
+    },
+  });
+}
+
+async function createWebLinkMemory(link: string, userId: number) {
+  const { title, description, image, content: details, keywords } = await giveLinkDetails(link);
+  const content = contentMaker({
+    category: "LINK",
+    link,
+    title,
+    description,
+    details,
+    keywords,
+  });
+
+  return await prisma.memory.create({
+    data: {
       link,
+      category: "LINK",
+      userId,
       title,
       description,
-      details,
-      keywords,
-    });
-    memory = await prisma.memory.create({
-      data: {
-        link: link,
-        category: category,
-        userId: session.user.id,
-        title: title,
-        description: description,
-        imageUrl: image,
-        content,
-      },
-    });
-  }
-  if (checkLinkType(link) === "TWTLINK") {
-    const tweetDetails = await giveTweetInfo(link);
-    const content = contentMaker({
+      imageUrl: image,
+      content,
+    },
+  });
+}
+
+async function createTweetMemory(link: string, userId: number) {
+  const tweetDetails = await giveTweetInfo(link);
+  const content = contentMaker({
+    category: "TWTLINK",
+    details: tweetDetails.description,
+    createrName: tweetDetails.creatorName,
+  });
+
+  return await prisma.memory.create({
+    data: {
+      link,
+      content,
       category: "TWTLINK",
-      details: tweetDetails.description,
-      createrName: tweetDetails.creatorName,
-    });
-    memory = await prisma.memory.create({
-      data: {
-        link,
-        content,
-        category,
-        userId: session.user.id,
-        description: tweetDetails.description,
-      },
-    });
+      userId,
+      description: tweetDetails.description,
+    },
+  });
+}
+
+async function addMemoryToVectorDB(memory: Memory) {
+  const vectorEmbedding = await generateEmbeddings(memory.content);
+  if (!vectorEmbedding) {
+    throw new AppError("Failed to generate vector embeddings");
   }
 
-  if (!memory) throw new AppError("Something went wrong creating memory !");
-
-  const vectorEmbedding = await generateEmbeddings(memory.content);
-  if (!vectorEmbedding)
-    throw new AppError("Something went wrong creating vector embeddings");
   await addVectorData({
     id: memory.id,
     vector_embeddings: vectorEmbedding,
@@ -276,14 +281,67 @@ export const createMemoryLink = authAsyncCatcher<
       memoryId: memory.id,
     },
   });
+}
 
-  revalidatePath("/dashboard");
-  return {
-    success: true,
-    data: memory,
-    message: "Memory created suucessfully !",
-  };
-});
+export const createMemoryLink = authAsyncCatcher<CreateMemoryLinkInterface, Memory>(
+  async ({ link, session }) => {
+    const result = linkSchema.safeParse({ link });
+    if (!link || !result.success) {
+      throw new AppError("Invalid link input");
+    }
+
+    // Check for existing memory
+    const existingMemory = await checkExistingMemory(link, session.user.id);
+    if (existingMemory?.userId === session.user.id) {
+      throw new AppError("You have already saved this website");
+    }
+
+    // If memory exists but belongs to another user, create a copy
+    if (existingMemory) {
+      const newMemory = await createMemoryFromExisting(existingMemory, session.user.id);
+      if (newMemory) {
+        revalidatePath("/dashboard");
+        return {
+          success: true,
+          data: newMemory,
+          message: "Memory created successfully!",
+        };
+      }
+    }
+
+    // Create new memory based on link type
+    let memory: Memory | null = null;
+    const linkType = checkLinkType(link);
+
+    switch (linkType) {
+      case "YTLINK":
+        memory = await createYoutubeMemory(link, session.user.id);
+        break;
+      case "LINK":
+        memory = await createWebLinkMemory(link, session.user.id);
+        break;
+      case "TWTLINK":
+        memory = await createTweetMemory(link, session.user.id);
+        break;
+      default:
+        throw new AppError("Unsupported link type");
+    }
+
+    if (!memory) {
+      throw new AppError("Failed to create memory");
+    }
+
+    // Add to vector database
+    await addMemoryToVectorDB(memory);
+
+    revalidatePath("/dashboard");
+    return {
+      success: true,
+      data: memory,
+      message: "Memory created successfully!",
+    };
+  }
+);
 
 export const getAllMemories = authAsyncCatcher<void, Memory[]>(
   async ({ session }) => {
