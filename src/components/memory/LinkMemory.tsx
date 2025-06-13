@@ -1,7 +1,7 @@
 import { Memory } from "@prisma/client";
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Globe } from "lucide-react";
+import { ArrowRight, Globe } from "lucide-react";
 import Link from 'next/link'
 import { Button } from "../ui/button";
 import DeleteMemory from "../DeleteMemory";
@@ -13,7 +13,7 @@ const LinkMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : b
       {!isForDisplay && <DeleteMemory id={memory.id} /> } 
       <CardContent className="p-0 flex flex-col overflow-hidden gap-y-2 relative">
         <div className="absolute top-4 left-4 flex gap-1 items-center w-fit bg-gray-800 rounded px-2 py-1 ">
-          <Globe className="h-4 w-4 text-green-500" />
+          <Globe className="h-4 w-4 text-blue-500" />
           <p className="text-xs text-gray-400 "> Web </p>
         </div>
         {memory.imageUrl ? (
@@ -31,8 +31,8 @@ const LinkMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : b
           )}
           {memory.link && (
             <Link href={memory.link} target="_blank" className="">
-              <Button variant={"outline"}>
-              Visit Website
+              <Button variant={"outline"} className="bg-blue-500/20 hover:bg-blue-500/30 " size={"sm"}>
+              Visit Website <ArrowRight />
               </Button>
             </Link>
           )}

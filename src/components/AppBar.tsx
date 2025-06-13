@@ -24,7 +24,7 @@ export const Appbar = () => {
       <div className="py-3 px-4 w-full max-w-7xl m-auto flex justify-between items-center">
         <Link href={"/"}>
           <h1 className="dark:text-white font-semibold text-2xl flex gap-2 items-center ">
-            <Brain /> Brainly
+            <Brain className="text-blue-500" /> Brainly
           </h1>
         </Link>
         {status == "authenticated" ? <ProfileDropDown /> : <Button onClick={handleSignClick}> Sign in </Button>}
