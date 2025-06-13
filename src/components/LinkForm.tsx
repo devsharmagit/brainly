@@ -22,6 +22,8 @@ const LinkForm = ({ handleDialogClose }: { handleDialogClose: () => void }) => {
   const [linkType, setLinkType] = useState<CATEGORY | null>(null);
   const [isLoading, setIsLoading] = useState(false)
 
+  const [currentLoadingIndex, setCurrentLoadingIndex] = useState(0)
+
   const form = useForm<LinkSchemaType>({
     resolver: zodResolver(linkSchema),
     defaultValues: {
@@ -43,6 +45,23 @@ const LinkForm = ({ handleDialogClose }: { handleDialogClose: () => void }) => {
       setLinkType(null);
     }
   }, [content]);
+
+  useEffect(()=>{
+    let interval : NodeJS.Timeout | null = null;
+    if(isLoading){
+      console.log("Loading started")
+     interval =   setInterval(() => {
+        setCurrentLoadingIndex((prevIndex) => {
+          const nextIndex = (prevIndex + 1) >= 4 ? prevIndex : (prevIndex + 1);
+          return nextIndex;
+        });
+      }, 2000);
+    }
+
+    return()=>{
+      if(interval) clearInterval(interval);
+      setCurrentLoadingIndex(0);    }
+  }, [isLoading]);
 
   const handleFormClose = () => {
     form.reset();
@@ -77,6 +96,7 @@ const LinkForm = ({ handleDialogClose }: { handleDialogClose: () => void }) => {
           className: "bg-red-500/70 hover:bg-red-500 text-white",
           actionText:
             "Bookmark this YouTube video to revisit and enjoy it later!",
+            loadingTexts: ["Visiting Youtube...", "Gathering data...", "Genrating embeddings...", "Saving..."]
         };
       case CATEGORY.TWTLINK:
         return {
@@ -85,6 +105,7 @@ const LinkForm = ({ handleDialogClose }: { handleDialogClose: () => void }) => {
           className: "bg-[#1e2731] hover:bg-[#141a20] text-white",
           actionText:
             "Save this Tweet to keep the conversation alive for later!",
+            loadingTexts: ["Visiting Twitter...", "Gathering data...", "Genrating embeddings...", "Saving..."]
         };
       case CATEGORY.LINK:
         return {
@@ -92,6 +113,7 @@ const LinkForm = ({ handleDialogClose }: { handleDialogClose: () => void }) => {
           icon: <Globe className="mr-2 h-6 w-6" />,
           className: "bg-green-700 hover:bg-green-800 text-white",
           actionText: "Bookmark this link to explore it whenever you want!",
+          loadingTexts: ["Visiting Website...", "Gathering data...", "Genrating embeddings...", "Saving..."]
         };
       default:
         return {
@@ -99,6 +121,7 @@ const LinkForm = ({ handleDialogClose }: { handleDialogClose: () => void }) => {
           icon: null,
           className: "",
           actionText: "Save this for future reference!",
+          loadingTexts: ["Visiting Website...", "Gathering data...", "Genrating embeddings...", "Saving..."]
         };
     }
   };
@@ -136,7 +159,7 @@ const LinkForm = ({ handleDialogClose }: { handleDialogClose: () => void }) => {
           >
             {isLoading ? 
             <>
-            <Loader className="animate-spin mr-2 h-6 w-6"  /> Loading...
+            <Loader className="animate-spin mr-2 h-6 w-6"  /> {buttonConfig.loadingTexts[currentLoadingIndex]}
             </>
             :
             <>

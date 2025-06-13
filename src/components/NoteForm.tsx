@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { noteSchema, NoteSchemaType } from "@/lib/formSchema";
@@ -16,9 +16,10 @@ import { createMemoryNote } from "@/app/action/memory";
 import { Loader } from "lucide-react";
 
 const NoteForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
-  
+   const loadingTexts =  useMemo(()=> ["Processing...", "Generating embeddings...", "Saving to DB...", "Saving..."], []);
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const [currentLoadingIndex, setCurrentLoadingIndex] = useState(0)
 
   const form = useForm<NoteSchemaType>({
     resolver: zodResolver(noteSchema),
@@ -26,6 +27,23 @@ const NoteForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
       content: "",
     },
   });
+
+  useEffect(()=>{
+      let interval : NodeJS.Timeout | null = null;
+      if(isLoading){
+        console.log("Loading started")
+       interval =   setInterval(() => {
+          setCurrentLoadingIndex((prevIndex) => {
+            const nextIndex = (prevIndex + 1) >= 4 ? prevIndex : (prevIndex + 1);
+            return nextIndex;
+          });
+        }, 2000);
+      }
+  
+      return()=>{
+        if(interval) clearInterval(interval);
+        setCurrentLoadingIndex(0);    }
+    }, [isLoading]);
 
   const handleFormClose = ()=>{
     form.reset()
@@ -70,7 +88,7 @@ const NoteForm = ({handleDialogClose} : {handleDialogClose: ()=>void}) => {
             )}
           />
           <Button type="submit" className="!mt-4">
-            {isLoading ? <>   <Loader className="animate-spin mr-2 h-6 w-6"  /> Loading... </> : "Save Memory"}
+            {isLoading ? <>   <Loader className="animate-spin mr-2 h-6 w-6"  /> {loadingTexts[currentLoadingIndex]} </> : "Save Memory"}
             
           </Button>
           <p className="text-muted-foreground !mt-2 text-xs">
