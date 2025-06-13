@@ -36,7 +36,7 @@ const Page = async () => {
             const formattedDate = formatDistanceToNow(new Date(createAt), { addSuffix: true })
 
             return (
-              <Link href={`/chat/${id}`} key={id} className="block group">
+              <Link href={`/dashboard/chat/${id}`} key={id} className="block group">
                 <Card className="h-full overflow-hidden transition-all duration-300 hover:border-primary hover:shadow-lg hover:scale-[1.02] bg-card/50 backdrop-blur-sm">
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">

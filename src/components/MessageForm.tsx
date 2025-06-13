@@ -35,7 +35,7 @@ const MessageForm = () => {
       setIsLoading(true);
       setIsError(null);
       const result = await getAIChat({ prompt: data.message });
-      if (result.data?.id) router.push("/chat/" + result.data.id);
+      if (result.data?.id) router.push("/dashboard/chat/" + result.data.id);
       if (!result.data?.response) {
         throw new Error("No response received from AI");
       }
