@@ -11,9 +11,9 @@ import {
   Youtube,
 } from "lucide-react";
 
-export function RandomFloatingIcons({ count = 6 }) {
+export function RandomFloatingIcons() {
   const [dimensions, setDimensions] = useState({ width: 1200, height: 800 });
-
+console.log(dimensions)
   useEffect(() => {
     // Update dimensions only on client side
     setDimensions({

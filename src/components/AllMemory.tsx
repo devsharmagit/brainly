@@ -22,13 +22,13 @@ const AllMemory: React.FC<AllMemoryProps> = ({ memories, filter }) => {
       {filteredMemories.map((memory) => {
         switch (memory.category) {
           case "NOTE":
-            return <NoteMemory key={memory.id} memory={memory} />;
+            return <NoteMemory key={memory.id} memory={memory} isForDisplay={false} />;
           case "TWTLINK":
-            return <TwitterMemory key={memory.id} memory={memory} />;
+            return <TwitterMemory key={memory.id} memory={memory} isForDisplay={false} />;
           case "YTLINK":
-            return <YoutubeMemory key={memory.id} memory={memory} />;
+            return <YoutubeMemory key={memory.id} memory={memory} isForDisplay={false} />;
           case "LINK":
-            return <LinkMemory key={memory.id} memory={memory} />;
+            return <LinkMemory key={memory.id} memory={memory} isForDisplay={false} />;
           default:
             return null;
         }

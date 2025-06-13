@@ -21,11 +21,12 @@ export function ProfileDropDown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="flex items-center gap-2">
+          {/* eslint-disable @next/next/no-img-element */
           <img
             src={data?.user?.image}
             alt="Profile"
             className="h-6 w-6 rounded-full"
-          />
+          />}
           <span className="hidden md:inline-block"> {data?.user.name} </span>
         </Button>
       </DropdownMenuTrigger>

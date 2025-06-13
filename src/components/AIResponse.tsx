@@ -23,7 +23,7 @@ const AIResponse = ({ response }: { response: string }) => {
         <div className="p-3 bg-muted/50 rounded-lg text-base whitespace-pre-wrap">
           <ReactMarkdown
             components={{
-              a: ({ node, ...props }) => (
+              a: ({  ...props }) => (
                 <a
                   {...props}
                   target="_blank"
@@ -31,7 +31,7 @@ const AIResponse = ({ response }: { response: string }) => {
                   className="text-blue-400 hover:underline"
                 />
               ),
-              ul: ({ node, ...props }) => (
+              ul: ({ ...props }) => (
                 <ul {...props} className="list-disc pl-4" />
               ),
             }}

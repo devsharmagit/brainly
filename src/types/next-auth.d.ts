@@ -17,3 +17,4 @@ declare module "next-auth" {
     email: string;
   }
 }
+export default NextAuth

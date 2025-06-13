@@ -17,7 +17,9 @@ const LinkMemory = ({ memory, isForDisplay }: { memory: Memory, isForDisplay : b
           <p className="text-xs text-gray-400 "> Web </p>
         </div>
         {memory.imageUrl ? (
+          /* eslint-disable @next/next/no-img-element */
           <img
+          alt={memory.title || "link memory img"}
             src={memory.imageUrl}
             className="w-full h-40 object-center object-cover overflow-hidden"
           />
