@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Brainly",
   description: "Your AI second brain.",
+  icons: {
+    icon: "/brain-blue-png.png"
+  }
 };
 
 export default function RootLayout({

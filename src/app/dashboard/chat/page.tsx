@@ -4,12 +4,15 @@ import { MessageSquare, ChevronRight, Plus, Calendar, MessageCircle } from "luci
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 
+export const dynamic = 'force-dynamic';
+
 const Page = async () => {
   const result = await getAllChat()
 
   if (!result.success) {
     return null
   }
+
 
   return (
     <main className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">

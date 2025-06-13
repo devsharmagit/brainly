@@ -9,6 +9,8 @@ import { History } from "lucide-react";
 import ScrollToTopView from "@/components/ScrollTop";
 import GridBackgroundContainer from "@/components/ui/gridbackground-container";
 
+export const dynamic = 'force-dynamic';
+
 const Page = async () => {
   
   const memories = await getAllMemories();
