@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
-// import { ThemeToggler } from "@/components/ThemeToggler";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Button } from "./ui/button";
-import { GithubIcon, TwitterIcon } from "./icons";
 import { Brain } from "lucide-react";
+import { ProfileDropDown } from "./profileDropDown";
+
 
 export const Appbar = () => {
   const { status } = useSession();
@@ -27,22 +27,7 @@ export const Appbar = () => {
             <Brain /> Brainly
           </h1>
         </Link>
-        <div className="flex gap-3 items-center">
-          <Button
-            onClick={handleSignClick}
-            variant={"ghost"}
-            className="border-opacity-20 border border-white"
-          >
-            {status === "authenticated" ? "Sign Out" : "Sign In"}
-          </Button>
-          {/* <ThemeToggler /> */}
-          <Link href={"https://x.com/CodeDevsharma"} target="_blank">
-            <TwitterIcon />
-          </Link>
-          <Link href={"https://github.com/devsharmagit"} target="_blank">
-            <GithubIcon />
-          </Link>
-        </div>
+        {status == "authenticated" ? <ProfileDropDown /> : <Button onClick={handleSignClick}> Sign in </Button>}
       </div>
       <Separator />
     </>
