@@ -1,0 +1,24 @@
+{
+  "name": "worker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@pinecone-database/pinecone": "^4.1.0",
+    "@repo/db": "workspace:*",
+    "axios": "^1.8.3",
+    "cheerio": "^1.0.0",
+    "puppeteer": "^24.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.1",
+    "@repo/typescript-config": "workspace:*"
+  }
+}

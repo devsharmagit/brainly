@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  name     String?
-  image    String?
-  memories Memory[]
-  chats    Chat[]
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  name      String?
+  image     String?
+  memories  Memory[]
+  chats     Chat[]
+  processes Process[]
 }
 
 model Memory {
@@ -35,23 +36,24 @@ model Memory {
   imageUrl    String?
   chats       ChatMemory[]
 }
+
 // Chat is equvivalent to conversation
 model Chat {
-  id       Int          @id @default(autoincrement())
-  userId   Int
-  user     User         @relation(fields: [userId], references: [id])
-  context  ChatMemory[]
-  response String
-  prompt   String
-  messages Message[]
+  id            Int          @id @default(autoincrement())
+  userId        Int
+  user          User         @relation(fields: [userId], references: [id])
+  context       ChatMemory[]
+  response      String
+  prompt        String
+  messages      Message[]
   contextString String
-  createAt   DateTime @default(now())
+  createAt      DateTime     @default(now())
 }
 
 model Message {
-  id         Int     @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   chatId     Int
-  chat       Chat    @relation(fields: [chatId], references: [id])
+  chat       Chat     @relation(fields: [chatId], references: [id])
   isSentbyAI Boolean
   message    String
   createAt   DateTime @default(now())
@@ -65,6 +67,20 @@ model ChatMemory {
   memory   Memory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
 
   @@id([chatId, memoryId]) // Composite primary key for many-to-many relation
+}
+
+model Process {
+  id     Int    @id @default(autoincrement())
+  userId Int
+  user   User   @relation(fields: [userId], references: [id])
+  data   String
+  status STATUS @default(PROCESSING)
+}
+
+enum STATUS {
+  PROCESSING
+  SUCCESS
+  FAILED
 }
 
 enum CATEGORY {
