@@ -1,10 +1,18 @@
-import Redis from "ioredis";
 import { createLinkMemory, createNoteMemory } from "./utils/memory";
+import { createClient } from 'redis';
 
-const redis = new Redis(process.env.UPSTASH_REDIS_REST_URL!, {
-  password: process.env.UPSTASH_REDIS_REST_TOKEN!,
-  tls: {},
+export const redis = createClient({
+    username: process.env.REDIS_USERNAME,
+    password: process.env.REDIS_PASSWORD,
+    socket: {
+        host: process.env.REDIS_HOST!,
+        port: Number(process.env.REDIS_PORT!)
+    }
 });
+
+redis.on('error', err => console.log('Redis Client Error', err));
+
+
 
 enum DATA_TYPE {
   LINK,
@@ -36,6 +44,7 @@ async function processTask(task: TaskData) {
 }
 
 async function startWorker() {
+  await redis.connect();
   console.log("Worker started...");
   while (true) {
     const res = await redis.brpop("task-queue", 0);
