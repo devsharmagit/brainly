@@ -13,6 +13,7 @@ import { checkLinkType, contentMaker } from "@/lib/utils";
 import { generateEmbeddings, model } from "@/lib/embeddings";
 import { addVectorData, deleteVectorData, getVectorEmbeddigsById, queryVectorDB } from "@/lib/pinecone";
 import { linkSchema } from "@/lib/formSchema";
+import { redis } from "@/lib/redis";
 
 
 
@@ -120,33 +121,32 @@ If the context doesn't contain enough information to answer the question, say so
   }
 );
 
+enum DATA_TYPE {
+  LINK,
+  NOTE,
+}
+
 export const createMemoryNote = authAsyncCatcher<
   CreateMemoryNoteInterface,
   Memory
 >(async ({ content, session }) => {
-  // TODO
-  // parse content with zod
-  const memory = await prisma.memory.create({
-    data: {
-      category: "NOTE",
-      content: contentMaker({ category: "NOTE", details: content }),
-      userId: session.user.id,
-      description: content,
-    },
-  });
-  const vectorEmbedding = await generateEmbeddings(memory.content);
-  if (!vectorEmbedding)
-    throw new AppError("Something went wrong creating vector embeddings");
-  await addVectorData({
-    id: memory.id,
-    vector_embeddings: vectorEmbedding,
-    metaData: {
-      content: memory.content,
-      userId: memory.userId,
-      memoryId: memory.id,
-    },
-  });
 
+  const process = await prisma.process.create({
+    data: {
+      data: content,
+      userId: session.user.id
+    }
+  })
+
+  if(process){
+    await redis.lpush("task-queue", JSON.stringify({
+       processId: process.id,
+  data: process.data,
+  userId: process.userId,
+  type: DATA_TYPE.NOTE,
+     }));
+  }
+  
   revalidatePath("/dashboard");
   return {
     success: true,
@@ -155,134 +155,6 @@ export const createMemoryNote = authAsyncCatcher<
   };
 });
 
-// Helper functions for createMemoryLink
-async function checkExistingMemory(link: string, userId: number) {
-  return await prisma.memory.findFirst({
-    where: {
-      OR: [
-        {
-          AND: [
-            { link, userId }
-          ]
-        },
-        { link }
-      ]
-    },
-    orderBy: { userId: "desc" }
-  });
-}
-
-async function createMemoryFromExisting(existingMemory: Memory, userId: number) {
-  const embeddings = await getVectorEmbeddigsById(existingMemory.id);
-  if (!embeddings) return null;
-
-  const newMemory = await prisma.memory.create({
-    data: {
-      category: existingMemory.category,
-      description: existingMemory.description,
-      content: existingMemory.content,
-      imageUrl: existingMemory.imageUrl,
-      link: existingMemory.link,
-      title: existingMemory.title,
-      userId
-    }
-  });
-
-  await addVectorData({
-    id: newMemory.id,
-    vector_embeddings: embeddings,
-    metaData: {
-      content: newMemory.content,
-      userId: newMemory.userId,
-      memoryId: newMemory.id,
-    },
-  });
-
-  return newMemory;
-}
-
-async function createYoutubeMemory(link: string, userId: number) {
-  const scrapeDetails = await getYoutubeDetails(link);
-  const content = contentMaker({
-    category: "YTLINK",
-    link,
-    details: scrapeDetails.details,
-    title: scrapeDetails.title,
-    description: scrapeDetails.description,
-    keywords: scrapeDetails.keywords,
-  });
-
-  return await prisma.memory.create({
-    data: {
-      link,
-      category: "YTLINK",
-      userId,
-      title: scrapeDetails.title,
-      imageUrl: scrapeDetails.image,
-      content,
-    },
-  });
-}
-
-async function createWebLinkMemory(link: string, userId: number) {
-  const { title, description, image, content: details, keywords } = await giveLinkDetails(link);
-  const content = contentMaker({
-    category: "LINK",
-    link,
-    title,
-    description,
-    details,
-    keywords,
-  });
-
-  return await prisma.memory.create({
-    data: {
-      link,
-      category: "LINK",
-      userId,
-      title,
-      description,
-      imageUrl: image,
-      content,
-    },
-  });
-}
-
-async function createTweetMemory(link: string, userId: number) {
-  const tweetDetails = await giveTweetInfo(link);
-  const content = contentMaker({
-    category: "TWTLINK",
-    details: tweetDetails.description,
-    createrName: tweetDetails.creatorName,
-  });
-
-  return await prisma.memory.create({
-    data: {
-      link,
-      content,
-      category: "TWTLINK",
-      userId,
-      description: tweetDetails.description,
-    },
-  });
-}
-
-async function addMemoryToVectorDB(memory: Memory) {
-  const vectorEmbedding = await generateEmbeddings(memory.content);
-  if (!vectorEmbedding) {
-    throw new AppError("Failed to generate vector embeddings");
-  }
-
-  await addVectorData({
-    id: memory.id,
-    vector_embeddings: vectorEmbedding,
-    metaData: {
-      content: memory.content,
-      userId: memory.userId,
-      memoryId: memory.id,
-    },
-  });
-}
 
 export const createMemoryLink = authAsyncCatcher<CreateMemoryLinkInterface, Memory>(
   async ({ link, session }) => {
