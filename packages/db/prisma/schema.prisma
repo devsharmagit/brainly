@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  name     String?
+  image    String?
+  memories Memory[]
+  chats    Chat[]
+}
+
+model Memory {
+  id          Int          @id @default(autoincrement())
+  category    CATEGORY
+  content     String
+  link        String?
+  userId      Int
+  user        User         @relation(fields: [userId], references: [id])
+  createdAt   DateTime     @default(now())
+  title       String?
+  description String?
+  imageUrl    String?
+  chats       ChatMemory[]
+}
+// Chat is equvivalent to conversation
+model Chat {
+  id       Int          @id @default(autoincrement())
+  userId   Int
+  user     User         @relation(fields: [userId], references: [id])
+  context  ChatMemory[]
+  response String
+  prompt   String
+  messages Message[]
+  contextString String
+  createAt   DateTime @default(now())
+}
+
+model Message {
+  id         Int     @id @default(autoincrement())
+  chatId     Int
+  chat       Chat    @relation(fields: [chatId], references: [id])
+  isSentbyAI Boolean
+  message    String
+  createAt   DateTime @default(now())
+}
+
+model ChatMemory {
+  chatId   Int
+  memoryId Int
+  score    Float  @default(0)
+  chat     Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  memory   Memory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+
+  @@id([chatId, memoryId]) // Composite primary key for many-to-many relation
+}
+
+enum CATEGORY {
+  LINK
+  YTLINK
+  TWTLINK
+  NOTE
+}
