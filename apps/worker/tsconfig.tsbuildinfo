@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/utils/embeddings.ts","./src/utils/memory.ts","./src/utils/pinecone.ts","./src/utils/scrape.ts","./src/utils/util.ts"],"version":"5.8.3"}

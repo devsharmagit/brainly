@@ -60,7 +60,9 @@ try {
 export const getVectorEmbeddigsById = async (id : number)=>{
   try {
   const result = await index.fetch([String(id)])
-  const {values} = result.records[String(id)]
+  const record = result.records[String(id)]
+  if (!record) return null
+  const {values} = record
     return values
 
   } catch (error) {

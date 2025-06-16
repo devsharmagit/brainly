@@ -1,7 +1,9 @@
+import dotenv from "dotenv";
+dotenv.config();
 import { createLinkMemory, createNoteMemory } from "./utils/memory";
-import { createClient } from 'redis';
+import { createClient, RedisClientType } from 'redis';
 
-export const redis = createClient({
+export const client: RedisClientType = createClient({
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
     socket: {
@@ -10,9 +12,7 @@ export const redis = createClient({
     }
 });
 
-redis.on('error', err => console.log('Redis Client Error', err));
-
-
+client.on('error', err => console.log('Redis Client Error', err));
 
 enum DATA_TYPE {
   LINK,
@@ -27,7 +27,7 @@ interface TaskData {
 }
 
 async function processTask(task: TaskData) {
-    console.log("Worker pickked up the queue work")
+    console.log("Worker picked up the queue work")
   if (task.type == DATA_TYPE.LINK) {
     await createLinkMemory({
       processId: task.processId,
@@ -44,13 +44,22 @@ async function processTask(task: TaskData) {
 }
 
 async function startWorker() {
-  await redis.connect();
-  console.log("Worker started...");
+  console.log("worker started !!!")
+  if (!client) return;
+  await client.connect();
+  
   while (true) {
-    const res = await redis.brpop("task-queue", 0);
-    if (res) {
-      const task: TaskData = JSON.parse(res[1]);
-      await processTask(task);
+    try {
+      console.log("the loop is working")
+      const res = await client.brPop("task-queue", 0);
+      console.log(res)
+      if(res){
+        const jsonData = JSON.parse(res.element)
+        await processTask(jsonData);
+
+      }
+    } catch (error) {
+      console.error('Error processing task:', error);
     }
   }
 }
