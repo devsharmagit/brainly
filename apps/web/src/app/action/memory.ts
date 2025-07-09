@@ -138,7 +138,7 @@ export const createMemoryNote = authAsyncCatcher<
 
   if (!process)
     throw new AppError("Something went wrong while creating process.");
-  await client.lpush(
+  await client.lPush(
     "task-queue",
     JSON.stringify({
       processId: process.id,
@@ -171,9 +171,9 @@ export const createMemoryLink = authAsyncCatcher<
     },
   });
 
-  if (!process)
-    throw new AppError("Something went wrong while creating process.");
-  await client.lpush(
+  if (!process) throw new AppError("Something went wrong while creating process.");
+
+  await client.lPush(
     "task-queue",
     JSON.stringify({
       processId: process.id,

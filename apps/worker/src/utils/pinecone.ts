@@ -1,5 +1,6 @@
 import { Pinecone } from "@pinecone-database/pinecone";
-
+console.log("below is the pinecone api key")
+console.log(process.env.PINECONE_API_KEY)
 const pc = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY!,
 });
@@ -60,8 +61,14 @@ try {
 export const getVectorEmbeddigsById = async (id : number)=>{
   try {
   const result = await index.fetch([String(id)])
-  const {values} = result.records[String(id)]
-    return values
+  
+  const ans = result.records[String(id)]
+  if(ans?.values){
+    return ans?.values
+  }else{
+    return null
+  }
+    
 
   } catch (error) {
     console.log(error)

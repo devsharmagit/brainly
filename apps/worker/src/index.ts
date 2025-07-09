@@ -1,7 +1,9 @@
-import { createLinkMemory, createNoteMemory } from "./utils/memory";
-import { createClient } from 'redis';
+import 'dotenv/config'
 
-export const redis = createClient({
+import { createLinkMemory, createNoteMemory } from "./utils/memory";
+import { createClient, RedisClientType } from 'redis';
+
+export const redisClient: RedisClientType = createClient({
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
     socket: {
@@ -10,7 +12,7 @@ export const redis = createClient({
     }
 });
 
-redis.on('error', err => console.log('Redis Client Error', err));
+redisClient.on('error', err => console.log('Redis Client Error', err));
 
 
 
@@ -44,12 +46,12 @@ async function processTask(task: TaskData) {
 }
 
 async function startWorker() {
-  await redis.connect();
+  await redisClient.connect();
   console.log("Worker started...");
   while (true) {
-    const res = await redis.brpop("task-queue", 0);
+    const res = await redisClient.brPop("task-queue", 0);
     if (res) {
-      const task: TaskData = JSON.parse(res[1]);
+      const task: TaskData = JSON.parse(res.element);
       await processTask(task);
     }
   }
