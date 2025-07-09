@@ -1,5 +1,5 @@
-import 'dotenv/config'
-
+import dotenv from "dotenv";
+dotenv.config();
 import { createLinkMemory, createNoteMemory } from "./utils/memory";
 import { createClient, RedisClientType } from 'redis';
 
@@ -29,7 +29,7 @@ interface TaskData {
 }
 
 async function processTask(task: TaskData) {
-    console.log("Worker pickked up the queue work")
+    console.log("Worker picked up the queue work")
   if (task.type == DATA_TYPE.LINK) {
     await createLinkMemory({
       processId: task.processId,

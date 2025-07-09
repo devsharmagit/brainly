@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "tsc -b && node dist/index.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -b",
+    "dev": "pnpm run build && node dist/index.js",
+    "start": "pnpm run build && node dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -13,11 +16,9 @@
     "@google/generative-ai": "^0.21.0",
     "@pinecone-database/pinecone": "^4.1.0",
     "@repo/db": "workspace:*",
-    "@upstash/redis": "^1.35.0",
     "axios": "^1.8.3",
     "cheerio": "^1.0.0",
-    "dotenv": "^17.1.0",
-    "ioredis": "^5.6.1",
+    "dotenv": "^16.5.0",
     "puppeteer": "^24.2.0",
     "redis": "^5.5.6"
   },
